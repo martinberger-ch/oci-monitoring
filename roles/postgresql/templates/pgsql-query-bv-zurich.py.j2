@@ -21,7 +21,7 @@ try:
 
         registry = CollectorRegistry()
 
-        g = Gauge('oci_compute_blockvolumes_count_zrh', 'OCI Compute Block Volumes Count ZRH', registry=registry)
+        g = Gauge('oci_compute_blockvolumes_summary_zrh', 'OCI Compute Block Volumes Summary ZRH', registry=registry)
         g.set(int(bv_zurich))
         push_to_gateway('127.0.0.1:9091', job='oci_blockvolume', registry=registry)
 
