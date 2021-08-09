@@ -138,15 +138,29 @@ Copy the configuration file preview, the values are used for Steampipe OCI confi
 
 ## Steampipe
 
-Here some commands to verify if streampipe is working properly and the connections works as expected. Execute as OS user root:
+### OCI Regions
+
+To filter your regions, just edit the file _/home/steampipe/config/oci.spc_ - example:
+
+```bash
+connection "oci_tenant_kestenholz" {
+  plugin                = "oci"
+  config_file_profile   = "DEFAULT"          # Name of the profile
+  config_path           = "~/.oci/config"    # Path to config file
+  regions               = ["eu-frankfurt-1" , "eu-zurich-1"] # List of regions
+}
+```
+
+Here are some commands to verify if Steampipe is working properly and the connections works as expected. Execute as OS user root:
 
 ```bash
 # docker exec -it steampipe steampipe plugin list
-+--------------------------------------------+---------+---------------------------+
-| Name                                       | Version | Connections               |
-+--------------------------------------------+---------+---------------------------+
-| hub.steampipe.io/plugins/turbot/oci@latest | 0.1.0   | oci_tenant_trivadisbdsxsp |
-+--------------------------------------------+---------+---------------------------+
++--------------------------------------------+---------+-----------------------+
+| Name                                       | Version | Connections           |
++--------------------------------------------+---------+-----------------------+
+| hub.steampipe.io/plugins/turbot/oci@latest | 0.1.0   | oci_tenant_kestenholz |
++--------------------------------------------+---------+-----------------------+
+
 ```
 
 ```bash
@@ -170,13 +184,44 @@ Here some commands to verify if streampipe is working properly and the connectio
 
 ## Python Example Scripts
 
-In subdirectory there are two basic examples how to get the data by Steampipe PostgreSQL service in Python3. Feel free to adapt the queries and files. Returned values are pushed to Prometheus Gateway to port 9091.
+In subdirectory _/home/steampipe/py_ there are two basic examples how to get the data from Steampipe PostgreSQL service in Python3. Feel free to adapt the queries and files. Returned values are pushed to Prometheus Gateway to port 9091 for further usage.
 
 | Script                                 | Purpose                                              |   |   |   |
 |----------------------------------------|------------------------------------------------------|---|---|---|
 | pgsql-query-bv-zurich.py               | Summary of Block Volume in OCI Region Zurich         |   |   |   |
 | pgsql-query-ci-running-zurich.py       | Summary of running Instances in OCI Region Zurich    |   |   |   |
 
+Attention: Actually you have to restart the Docker container before executing Python3 according this error - I am investigating on it.
+
+```bash
+Something went wrong: no connection config loaded for connection 'oci'
+```
+
+As OS user root:
+
+```bash
+# docker stop steampipe
+# docker start steampipe
+
+```
+
+## Prometheus Push Gateway
+
+According the Python script, new data is loaded in Prometheus Push Gateway to port 9091 and scraped by Prometheus port 9090. Example for Protheus Gateway where data is loaded by jobs _oci_blockvolume_ / _oci_compute_.
+
+![OCI Prometheus Push Gateway 01](images/oci_pushgateway_01.png)
+
+## Grafana
+
+Grafana is reachable by address _your-machine-ip:3000_.
+
+- Username: admin
+- Password: welcome1
+
+The Prometheus data source and a basic dashboard are deployed during the Grafana Docker setup process.
+
+
+
 ## Troubleshooting
 
-Coming soon...
+Here we add some words about troubleshooting...
