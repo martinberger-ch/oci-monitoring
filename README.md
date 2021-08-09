@@ -26,18 +26,18 @@ Installed components by Ansible roles:
 - Internet access
 
 ```bash
-yum install yum-utils
-yum install oracle-epel-release-el8
+yum -y install yum-utils
+yum -y install oracle-epel-release-el8
 yum-config-manager --enable ol8_developer_EPEL
-yum install ansible git
+yum -y install ansible git
 ```
 
 ## Steps
 
 1. Login as OS user root into Oracle Linux 8
-2. Clone the repository to a local folder like /root/ansibl
+2. Clone the repository to a local folder like /root/git
 3. Change to subdirectory oci-monitoring
-4. Adapt Ansible _hosts_ file with your ip and root password (ansible_ssh_pass)
+4. Adapt Ansible _hosts_ file with your ip and root password (ansible_ssh_pass) - required for local connections
 5. ansible-galaxy collection install -r roles/requirements.yml
 6. ansible-playbook install.yml
 
