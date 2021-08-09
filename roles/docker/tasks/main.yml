@@ -1,0 +1,36 @@
+---
+# tasks file for docker
+
+- name: Add Docker repo
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+
+- name: Remove RunC Lightweight Container
+  dnf:
+    name:
+      - runc
+    state: absent
+
+- name: Install the latest version of Docker and Co.
+  dnf:
+    name:
+      - containerd.io
+      - docker-ce
+      - docker-ce-cli
+    state: latest
+
+- name: Enable service for Docker
+  ansible.builtin.systemd:
+    name: docker
+    enabled: yes
+
+- name: Make sure a service unit for Docker is running
+  ansible.builtin.systemd:
+    state: started
+    name: docker
+
+- name: Install docker for Python 3 specifically, using the 'pip3' executable
+  pip:
+    name: docker
+    executable: pip3

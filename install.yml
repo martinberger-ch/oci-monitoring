@@ -1,0 +1,10 @@
+---
+- name: Install OCI Monitoring
+  hosts: monitoring
+  roles:
+    - docker
+    - steampipe
+    - postgresql
+    - grafana
+    - prometheus
+    - pushgateway

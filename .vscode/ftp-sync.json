@@ -1,0 +1,19 @@
+{
+    "remotePath": "./ansible",
+    "host": "192.168.186.128",
+    "username": "root",
+    "password": "welcome1",
+    "port": 22,
+    "secure": true,
+    "protocol": "sftp",
+    "uploadOnSave": true,
+    "passive": false,
+    "debug": false,
+    "privateKeyPath": null,
+    "passphrase": null,
+    "agent": null,
+    "allow": [],
+    "ignore": [
+        "\\.vscode"
+    ]
+}

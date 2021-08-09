@@ -1,0 +1,96 @@
+---
+# tasks file for grafana
+
+- name: create directory if they don't exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+  loop:
+    - /etc/grafana/provisioning/datasources
+    - /etc/grafana/provisioning/notifiers
+    - /etc/grafana/provisioning/plugins
+    - /etc/grafana/provisioning/dashboards
+  tags: grafana
+
+- name: Pull Grafana Docker Image
+  community.docker.docker_image:
+    name: grafana/grafana
+    source: pull
+  tags: grafana
+
+- name: Create Grafana Container and start
+  community.docker.docker_container:
+    name: grafana
+    image: grafana/grafana
+    volumes:
+      - "/etc/grafana/provisioning:/etc/grafana/provisioning"
+    ports:
+      - "0.0.0.0:3000:3000"
+    restart_policy: always
+    container_default_behavior: no_defaults
+  tags: grafana
+
+- name: Change Grafana default admin password
+  community.docker.docker_container_exec:
+    container: grafana
+    command: /bin/bash -c "grafana-cli --homepath /usr/share/grafana admin reset-admin-password welcome1"
+    chdir: /root
+    user: root
+  tags: grafana
+
+- name: Install Grafana time and date panel
+  community.docker.docker_container_exec:
+    container: grafana
+    command: /bin/bash -c "grafana-cli --homepath /usr/share/grafana plugins install grafana-clock-panel"
+    chdir: /root
+    user: root
+  tags: grafana
+
+- name: Grafana Data Source Configuration
+  template:
+    dest: /etc/grafana/provisioning/datasources/datasource.yml
+    force: true
+    src: datasource.yml.j2
+    mode: 0644
+
+- name: Grafana Data Source Configuration
+  template:
+    dest: /etc/grafana/provisioning/datasources/datasource.yml
+    force: true
+    src: datasource.yml.j2
+    mode: 0644
+  tags: grafana
+
+- name: Grafana Data Source Dashboard Configuration
+  template:
+    dest: /etc/grafana/provisioning/dashboards/dashboard.yml
+    force: true
+    src: dashboard.yml.j2
+    mode: 0644
+  tags: grafana
+  
+- name: Grafana Data Source Dashboard
+  template:
+    dest: /etc/grafana/provisioning/dashboards/dashboard.json
+    force: true
+    src: dashboard.json.j2
+    mode: 0644
+  tags: grafana
+
+- name: Restart a container
+  community.docker.docker_container:
+    name: grafana
+    image: grafana/grafana
+    state: started
+    restart: yes
+    container_default_behavior: no_defaults
+  tags: grafana
+
+- name: enable port 3000 in firewall rules
+  firewalld:
+    port: 3000/tcp
+    state: enabled
+  tags: grafana

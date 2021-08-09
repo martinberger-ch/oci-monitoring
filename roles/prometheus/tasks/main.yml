@@ -1,0 +1,59 @@
+---
+# tasks file for prometheus
+
+- name: Ensure group 'prometheus' exists
+  group:
+    name: prometheus
+    state: present
+
+- name: Add the user prometheus with a group of 'prometheus'
+  user:
+    name: prometheus
+    comment: Prometheus User
+    group: prometheus
+
+- name: create directory if they don't exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: 0775
+  loop:
+    - /etc/prometheus
+    - /home/prometheus/data
+
+- name: prometheus | prometheus configuration file
+  template:
+    dest: /etc/prometheus/prometheus.yml
+    force: true
+    src: etc-prometheus-yml.j2
+    mode: 0644
+    owner: prometheus
+    group: prometheus
+
+- name: Pull Prometheus Docker Image
+  community.docker.docker_image:
+    name: prom/prometheus
+    source: pull
+
+- name: Create Prometheus Container and start
+  community.docker.docker_container:
+    name: prometheus
+    image: prom/prometheus
+    volumes:
+      - "/etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+    ports:
+      - "0.0.0.0:9090:9090"
+    command: >
+      --config.file=/etc/prometheus/prometheus.yml
+      --storage.tsdb.path=/home/prometheus/data
+      --web.enable-lifecycle
+    restart_policy: always
+    container_default_behavior: no_defaults
+  tags: docker
+
+- name: enable port 9090 in firewall rules
+  firewalld:
+    port: 9090/tcp
+    state: enabled
