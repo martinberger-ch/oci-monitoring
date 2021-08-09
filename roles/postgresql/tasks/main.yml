@@ -16,7 +16,7 @@
     name: gcc
     state: present
 
-- name: install the latest version of pgsql-devel
+- name: install the latest version of python3-devel
   dnf:
     name: python3-devel
     state: present

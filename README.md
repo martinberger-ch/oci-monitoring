@@ -2,10 +2,12 @@
 
 Note: This is an experimental environment!
 
-Installs a basic OCI monitoring solution with these components based on Ansible in Oracle Linux 8. The setups is tested for
+Installs a basic OCI monitoring solution with these components based on Ansible in Oracle Linux 8. The setup is tested for
 
 - OL8 running in ESXi
-- OL8 running in Oracle Cloud Infrastructure with Public VCN
+- OL8 running in local VmWare
+
+OL8 is a base installation.
 
 Installed components by Ansible roles:
 
@@ -18,27 +20,28 @@ Installed components by Ansible roles:
 
 ## Prerequisites
 
-- root access to OS
+- root access by password
 - /etc/hosts configured
 - Ansible and Git configured
 - Internet access
 
 ```bash
 yum install yum-utils
-yum-config-manager --enable ol8_developer_EPEL
 yum install oracle-epel-release-el8
+yum-config-manager --enable ol8_developer_EPEL
 yum install ansible git
 ```
 
 ## Steps
 
 1. Login as OS user root into Oracle Linux 8
-2. Clone the repository to a local folder e.g. /root/ansible
-3. Change to subdirectory ansible
-4. ansible-galaxy collection install -r roles/requirements.yml
-5. ansible-playbook install.yml
+2. Clone the repository to a local folder like /root/ansibl
+3. Change to subdirectory oci-monitoring
+4. Adapt Ansible _hosts_ file with your ip and root password (ansible_ssh_pass)
+5. ansible-galaxy collection install -r roles/requirements.yml
+6. ansible-playbook install.yml
 
-As root, verify is all Docker containers are running:
+As OS user root, verify is all Docker containers are running:
 
 ```bash
 # docker ps
@@ -48,6 +51,15 @@ c6ecc72065c9   prom/prometheus    "/bin/prometheus --c…"   About an hour ago  
 3485de8cc1f9   grafana/grafana    "/run.sh"                About an hour ago   Up About an hour   0.0.0.0:3000->3000/tcp   grafana
 8e821aa0044b   turbot/steampipe   "docker-entrypoint.s…"   About an hour ago   Up 30 minutes      0.0.0.0:9193->9193/tcp   steampipe
 ```
+
+### Network Security
+
+The Ansible playbooks open additionally these ports in the VM for access:
+
+- 3000 - Grafana
+- 9090 - Prometheus
+- 9091 - Prometheus Push Gateway
+- 9093 - Steampipe Service
 
 ## OCI Configuration
 
