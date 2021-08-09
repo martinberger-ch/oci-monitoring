@@ -55,15 +55,8 @@
     force: true
     src: datasource.yml.j2
     mode: 0644
-
-- name: Grafana Data Source Configuration
-  template:
-    dest: /etc/grafana/provisioning/datasources/datasource.yml
-    force: true
-    src: datasource.yml.j2
-    mode: 0644
   tags: grafana
-
+  
 - name: Grafana Data Source Dashboard Configuration
   template:
     dest: /etc/grafana/provisioning/dashboards/dashboard.yml
