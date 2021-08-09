@@ -56,7 +56,7 @@
     src: datasource.yml.j2
     mode: 0644
   tags: grafana
-  
+
 - name: Grafana Data Source Dashboard Configuration
   template:
     dest: /etc/grafana/provisioning/dashboards/dashboard.yml
@@ -64,12 +64,20 @@
     src: dashboard.yml.j2
     mode: 0644
   tags: grafana
-  
-- name: Grafana Data Source Dashboard
+
+- name: Grafana Data Source Dashboard Full
   template:
-    dest: /etc/grafana/provisioning/dashboards/dashboard.json
+    dest: /etc/grafana/provisioning/dashboards/dashboard-full.json
     force: true
-    src: dashboard.json.j2
+    src: dashboard-full.json.j2
+    mode: 0644
+  tags: grafana
+
+- name: Grafana Data Source Dashboard Small
+  template:
+    dest: /etc/grafana/provisioning/dashboards/dashboard-small.json
+    force: true
+    src: dashboard-small.json.j2
     mode: 0644
   tags: grafana
 
