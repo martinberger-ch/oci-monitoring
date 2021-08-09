@@ -18,6 +18,8 @@ Installed components by Ansible roles:
 - Push Gateway
 - PostgreSQL
 
+-> PLACEHOLDER FOR IMAGE
+
 ## Prerequisites
 
 - root access by password
@@ -38,8 +40,8 @@ yum -y install ansible git
 2. Clone the repository to a local folder like /root/git
 3. Change to subdirectory oci-monitoring
 4. Adapt Ansible _hosts_ file with your ip and root password (ansible_ssh_pass) - required for local connections
-5. ansible-galaxy collection install -r roles/requirements.yml
-6. ansible-playbook install.yml
+5. Run _ansible-galaxy collection install -r roles/requirements.yml_
+6. Run _ansible-playbook install.yml_
 
 As OS user root, verify is all Docker containers are running:
 
@@ -165,3 +167,16 @@ Here some commands to verify if streampipe is working properly and the connectio
 | FRA | eu-frankfurt-1 | READY  |
 +-----+----------------+--------+
 ```
+
+## Python Example Scripts
+
+In subdirectory there are two basic examples how to get the data by Steampipe PostgreSQL service in Python3. Feel free to adapt the queries and files. Returned values are pushed to Prometheus Gateway to port 9091.
+
+| Script                                 | Purpose                                              |   |   |   |
+|----------------------------------------|------------------------------------------------------|---|---|---|
+| pgsql-query-bv-zurich.py               | Summary of Block Volume in OCI Region Zurich         |   |   |   |
+| pgsql-query-ci-running-zurich.py       | Summary of running Instances in OCI Region Zurich    |   |   |   |
+
+## Troubleshooting
+
+Coming soon...
