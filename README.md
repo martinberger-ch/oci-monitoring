@@ -26,6 +26,9 @@ Installed components by Ansible roles:
 - /etc/hosts configured
 - Ansible and Git configured
 - Internet access
+- Oracle Cloud Infrastructure user which has inspect permissions (how? see below) and his SSH PEM key and config
+
+### YUM
 
 ```bash
 yum -y install yum-utils
@@ -193,11 +196,18 @@ In subdirectory _/home/steampipe/py_ there are two basic examples how to get the
 
 Attention: Actually you have to restart the Docker container before executing Python3 according this error - I am investigating on it.
 
+Manual execution and upload of the query result:
+
+```bash
+# python3 pgsql-query-ci-running-zurich.py
+# python3 pgsql-query-bv-zurich.py
+```
+
 ```bash
 Something went wrong: no connection config loaded for connection 'oci'
 ```
 
-As OS user root:
+Restarting Steampipe as OS user root:
 
 ```bash
 # docker stop steampipe
@@ -218,7 +228,8 @@ Grafana is reachable by address _your-machine-ip:3000_.
 - Username: admin
 - Password: welcome1
 
-The Prometheus data source and a basic dashboard are deployed during the Grafana Docker setup process.
+The Prometheus data source and a basic dashboard are deployed during the Grafana Docker setup process. Example for dasboard _OCI Demo - eu-zurich-1_:
+
 
 
 
