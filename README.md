@@ -1,13 +1,11 @@
-# Installation Guide for OCI Monitoring - DRAFT
+# Installation Guide for OCI Monitoring - EXPERIMENTAL
 
-Note: This is an experimental environment!
+Note: This is an experimental environment, feel free to try it out, extend it and have fun with it!
 
 Installs a basic OCI monitoring solution with these components based on Ansible in Oracle Linux 8. The setup is tested for
 
 - OL8 running in ESXi
 - OL8 running in local VmWare
-
-OL8 is a base installation.
 
 Installed components by Ansible roles:
 
@@ -18,7 +16,16 @@ Installed components by Ansible roles:
 - Push Gateway
 - PostgreSQL
 
--> PLACEHOLDER FOR IMAGE
+## How it works
+
+![Architecture](images/architecture.png)
+
+1. Execute Python Script
+2. Steampipe gathers the information from Oracle Cloud Infrastructure
+3. The return value is pushed to Prometheus Push Gateway
+4. Prometheus scrapes the metric from the gateway
+5. Grafana reads the metric from Prometheus
+
 
 ## Prerequisites
 
