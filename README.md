@@ -230,9 +230,32 @@ Grafana is reachable by address _your-machine-ip:3000_.
 
 The Prometheus data source and a basic dashboard are deployed during the Grafana Docker setup process. Example for dasboard _OCI Demo - eu-zurich-1_:
 
+Prometheus data source:
+![OCI Grafana 01](images/oci_grafana_01.png)
 
+Sample dashboard OCI Demo:
+![OCI Grafana 02](images/oci_grafana_02.png)
 
+Here you can see the pushed metric from the Python script by name:
+![OCI Grafana 03](images/oci_grafana_03.png)
 
 ## Troubleshooting
 
-Here we add some words about troubleshooting...
+### Docker Logs
+
+To verify if Steampipe is running properly:
+
+```bash
+# docker logs steampipe
+```
+
+### Steampipe Access Logs
+
+The foreign data wrapper logs are stored locally - not in the Docker container - in the directory _/home/steampipe/logs_:
+
+```bash
+drwx------. 11 steampipe steampipe     173 Aug  9 17:18 ..
+-rw-------.  1      9193 root       756701 Aug  9 19:57 database-2021-08-09.log
+drwxrwxr-x.  2 steampipe root           68 Aug 10 02:00 .
+-rw-------.  1      9193 root      3411203 Aug 10 07:19 database-2021-08-10.log
+```
