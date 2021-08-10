@@ -16,6 +16,13 @@ Installed components by Ansible roles:
 - Push Gateway
 - PostgreSQL
 
+## Links
+
+- [Steampipe](https://steampipe.io/)
+- [Prometheus](https://prometheus.io/)
+- [Grafana](https://grafana.com/)
+- [OCI CLI](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/cliconcepts.htm)
+
 ## How it works
 
 ![Architecture](images/architecture.png)
