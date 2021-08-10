@@ -5,7 +5,7 @@ Note: This is an experimental environment, feel free to try it out, extend it an
 Installs a basic OCI monitoring solution with these components based on Ansible in Oracle Linux 8. The setup is tested for
 
 - OL8 running in ESXi
-- OL8 running in local VmWare
+- OL8 running in local VMware Workstation with NAT
 
 Installed components by Ansible roles:
 
