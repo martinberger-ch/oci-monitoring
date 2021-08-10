@@ -18,10 +18,10 @@ Installed components by Ansible roles:
 
 ## Links
 
-- [Steampipe](https://steampipe.io/)
-- [Prometheus](https://prometheus.io/)
-- [Grafana](https://grafana.com/)
-- [OCI CLI](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/cliconcepts.htm)
+- [Steampipe](https://steampipe.io/){:target="_blank"}
+- [Prometheus](https://prometheus.io/){:target="_blank"}
+- [Grafana](https://grafana.com/){:target="_blank"}
+- [OCI CLI](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/cliconcepts.htm){:target="_blank"}
 
 ## How it works
 
