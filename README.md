@@ -59,7 +59,7 @@ c6ecc72065c9   prom/prometheus    "/bin/prometheus --c…"   About an hour ago  
 
 ### Network Security
 
-The Ansible playbooks open additionally these ports in the VM for access:
+The Ansible playbooks open additionally these ports in the VM for (troubleshooting) access:
 
 - 3000 - Grafana
 - 9090 - Prometheus
@@ -68,7 +68,7 @@ The Ansible playbooks open additionally these ports in the VM for access:
 
 ## OCI Configuration
 
-After the Ansible execution, put your personal OCI configuration and SSH key into directory ~/.oci. Replace the dummy values. Adapt file /home/steampipe/config/oci.spc with the correct SSH key file name.
+After the successful Ansible execution, put your personal OCI configuration and SSH key into directory /home/steampipe/.oci. Replace the dummy values. Adapt file /home/steampipe/config/oci.spc with the correct SSH key file name.
 
 Take care that owner and group of the OCI configuration file is OS user _steampipe_.
 
