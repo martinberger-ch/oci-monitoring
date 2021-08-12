@@ -6,6 +6,7 @@ Installs a basic OCI monitoring solution with these components based on Ansible 
 
 - OL8 running in ESXi
 - OL8 running in local VMware Workstation with NAT
+- OL8 running in Oracle Cloud Infrastructure
 
 Installed components by Ansible roles:
 
@@ -42,7 +43,9 @@ Installed components by Ansible roles:
 - Internet access
 - Oracle Cloud Infrastructure user which has inspect permissions (how? see below) and his SSH PEM key and config
 
-### YUM
+### Software Installation OL8 ESXi / OL8 VMware
+
+As user root.
 
 ```bash
 yum -y install yum-utils
@@ -50,6 +53,32 @@ yum -y install oracle-epel-release-el8
 yum-config-manager --enable ol8_developer_EPEL
 yum -y install ansible git
 ```
+
+### Software Installation OL8 Oracle Cloud Infrastructure
+
+As user opc
+
+```bash
+sudo dnf upgrade
+sudo dnf -y install oracle-epel-release-el8
+sudo dnf config-manager --enable ol8_developer_EPEL
+sudo dnf -y install ansible git
+```
+
+### Ansible SSH Configuration for Oracle Cloud Infrastructure
+
+- Upload the os user _opc_ SSH private key temporarily for installaton purposes to /home/opc/.ssh
+- Change the Ansible checked out hosts file to
+
+```bash
+[all:vars]
+ansible_ssh_private_key_file=/home/opc/.ssh/<your_ssh_key_file_name_here>
+
+[monitoring]
+<your_oci_compute_private_instance_here> ansible_user=opc ansible_python_interpreter="/usr/bin/env python3"
+```
+
+- After the installation, it's a good practise to remove opc private key from compute instance again.
 
 ## Steps
 
