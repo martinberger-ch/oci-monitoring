@@ -1,6 +1,7 @@
 ---
 - name: Install OCI Monitoring
   hosts: monitoring
+  become: yes
   roles:
     - docker
     - steampipe

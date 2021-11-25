@@ -1,2 +1,9 @@
-# Here we ignore something
-kestenholz-20210908.pem
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Local History for Visual Studio Code
+.history/

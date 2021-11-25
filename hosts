@@ -1,5 +1,14 @@
-[all:vars]
-#ansible_ssh_private_key_file=
+# - For OL8 ESXi / OL8 VMware ---------------------------------------------
+# - set IP and root password
+# -------------------------------------------------------------------------
+#[monitoring]
+#<your_monitoring_host_IP_here> ansible_user=root ansible_ssh_pass=<your_root_password_here> ansible_python_interpreter="/usr/bin/env python3"
 
-[monitoring]
-192.168.186.128 ansible_user=root ansible_ssh_pass=welcome1 ansible_python_interpreter="/usr/bin/env python3"
+# - For Oracle Cloud Infrastructure ---------------------------------------
+# - set path to opc SSH key
+# - set IP
+# -------------------------------------------------------------------------
+#[all:vars]
+#ansible_ssh_private_key_file=
+#[monitoring]
+#<your_monitoring_host_IP_here> ansible_user=root ansible_ssh_pass=welcome1 ansible_python_interpreter="/usr/bin/env python3"

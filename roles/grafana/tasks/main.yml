@@ -17,14 +17,14 @@
 
 - name: Pull Grafana Docker Image
   community.docker.docker_image:
-    name: grafana/grafana
+    name: "{{ docker_grafana_image }}"
     source: pull
   tags: grafana
 
 - name: Create Grafana Container and start
   community.docker.docker_container:
     name: grafana
-    image: grafana/grafana
+    image: "{{ docker_grafana_image }}"
     volumes:
       - "/etc/grafana/provisioning:/etc/grafana/provisioning"
     ports:

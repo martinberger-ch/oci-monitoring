@@ -34,18 +34,17 @@ Installed components by Ansible roles:
 4. Prometheus scrapes the metric from the gateway
 5. Grafana reads the metric from Prometheus
 
-
 ## Prerequisites
 
 - root access by password
 - /etc/hosts configured
 - Ansible and Git configured
-- Internet access
+- Internet access for download YUM packages and Ansible Galaxy role
 - Oracle Cloud Infrastructure user which has inspect permissions (how? see below) and his SSH PEM key and config
 
-### Software Installation OL8 ESXi / OL8 VMware
+### OL8 ESXi / OL8 VMware - Software Installation 
 
-As user root.
+As user root:
 
 ```bash
 yum -y install yum-utils
@@ -54,9 +53,9 @@ yum-config-manager --enable ol8_developer_EPEL
 yum -y install ansible git
 ```
 
-### Software Installation OL8 Oracle Cloud Infrastructure
+### Oracle Cloud Infrastructure - Software Installation OL8
 
-As user opc
+As user opc:
 
 ```bash
 sudo dnf upgrade
@@ -65,29 +64,63 @@ sudo dnf config-manager --enable ol8_developer_EPEL
 sudo dnf -y install ansible git
 ```
 
-### Ansible SSH Configuration for Oracle Cloud Infrastructure
+## Installation and Configuration
 
-- Upload the os user _opc_ SSH private key temporarily for installaton purposes to /home/opc/.ssh
-- Change the Ansible checked out hosts file to
+### Login as OS user root into your Oracle Linux 8 server
+
+```bash
+# id
+uid=0(root) gid=0(root) groups=0(root) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+```
+
+### Clone the repository to a local folder like /root/git
+
+```bash
+# mkdir git
+# cd git
+# git clone https://github.com/martinberger-ch/oci-monitoring.git
+```
+
+### Change to subdirectory oci-monitoring
+
+```bash
+# cd oci-monitoring
+```
+
+### Oracle Cloud Infrastructure - Adapt Ansible _hosts_ file in directory with your ip and the path to the opc SSH key
+
+- Add path to SSH key and local IP address
 
 ```bash
 [all:vars]
 ansible_ssh_private_key_file=/home/opc/.ssh/<your_ssh_key_file_name_here>
 
 [monitoring]
-<your_oci_compute_private_instance_here> ansible_user=opc ansible_python_interpreter="/usr/bin/env python3"
+<your_oci_compute_private_instance_IP_here> ansible_user=opc ansible_python_interpreter="/usr/bin/env python3"
 ```
 
 - After the installation, it's a good practise to remove opc private key from compute instance again.
 
-## Steps
+### OL8 ESXi / OL8 VMware - Adapt Ansible _hosts_ file in directory with your ip and root password (ansible_ssh_pass) - required for local connections
 
-1. Login as OS user root into Oracle Linux 8
-2. Clone the repository to a local folder like /root/git
-3. Change to subdirectory oci-monitoring
-4. Adapt Ansible _hosts_ file with your ip and root password (ansible_ssh_pass) - required for local connections
-5. Run _ansible-galaxy collection install -r roles/requirements.yml_
-6. Run _ansible-playbook install.yml_
+```bash
+[monitoring]
+<your_local_IP_here> ansible_user=root ansible_ssh_pass=<your_root_password_here> ansible_python_interpreter="/usr/bin/env python3"
+```
+
+### Run _ansible-galaxy collection install -r roles/requirements.yml_
+
+```bash
+# ansible-galaxy collection install -r roles/requirements.yml
+```
+
+### Run _ansible-playbook install.yml_
+
+```bash
+# ansible-playbook install.yml
+```
+
+## Verification
 
 As OS user root, verify is all Docker containers are running:
 
