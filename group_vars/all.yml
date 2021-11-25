@@ -1,2 +1,2 @@
 # general vars
-docker_grafana_image: "grafana/grafana-oss:7.5.11"
+docker_grafana_image: "grafana/grafana-oss:7.5.6"
