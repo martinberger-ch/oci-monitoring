@@ -213,7 +213,20 @@ Download the created private key in PEM format.
 
 ![OCI API Key 03](images/oci_api_key_03.png)
 
-Copy the configuration file preview, the values are used for Steampipe OCI configuration.
+Copy the configuration file preview, the values are used for Steampipe OCI configuration
+in file /home/steampipe/.oci/config.
+
+### Example /home/steampipe/.oci/config
+
+```bash
+[DEFAULT]
+user=ocid1.user.oc1..aaaaa1234567890
+fingerprint=49:59:38:89:0d:39:1234567890
+tenancy=ocid1.tenancy.oc1..aaaaaaaaxuk4je4t3ao1234567890
+region=eu-zurich-1
+key_file=/home/steampipe/.oci/my_private_ssh_key_from_above.pem
+
+```
 
 ## Steampipe
 
@@ -263,7 +276,7 @@ Here are some commands to verify if Steampipe is working properly and the connec
 
 ## Python Example Scripts
 
-In subdirectory _/home/steampipe/py_ there are two basic examples how to get the data from Steampipe PostgreSQL service in Python3. Feel free to adapt the queries and files. Returned values are pushed to Prometheus Gateway to port 9091 for further usage.
+In subdirectory of new add OS user steampipe _/home/steampipe/py_ there are two basic examples how to get the data from Steampipe PostgreSQL service in Python3. Feel free to adapt the queries and files. Returned values are pushed to Prometheus Gateway to port 9091 for further usage.
 
 | Script                                 | Purpose                                              |   |   |   |
 |----------------------------------------|------------------------------------------------------|---|---|---|
@@ -336,5 +349,6 @@ drwxrwxr-x.  2 steampipe root           68 Aug 10 02:00 .
 -rw-------.  1      9193 root      3411203 Aug 10 07:19 database-2021-08-10.log
 ```
 
-## Know Issues
-Actually tested with Grafana 
+## Known Issues
+
+Actually tested with Grafana 7.5.0.
