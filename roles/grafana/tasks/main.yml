@@ -84,7 +84,7 @@
 - name: Restart a container
   community.docker.docker_container:
     name: grafana
-    image: grafana/grafana
+    image: "{{ docker_grafana_image }}"
     state: started
     restart: yes
     container_default_behavior: no_defaults
