@@ -79,7 +79,7 @@ uid=0(root) gid=0(root) groups=0(root) context=unconfined_u:unconfined_r:unconfi
 # cd oci-monitoring
 ```
 
-### OL8 ESXi / OL8 VMware - Adapt Ansible _hosts_ file in directory with your ip and root password (ansible_ssh_pass) - required for local connections
+### Adapt Ansible _hosts_ file in directory with your ip and root password (ansible_ssh_pass) - required for local connections
 
 ```bash
 [monitoring]
@@ -120,9 +120,11 @@ The Ansible playbooks open additionally these ports in the VM for (troubleshooti
 - 9091 - Prometheus Push Gateway
 - 9093 - Steampipe Service
 
-## OCI Configuration
+## Steampipe
 
-After the successful Ansible execution, put your personal OCI configuration and SSH key into directory /home/steampipe/.oci. Replace the dummy values. Adapt file /home/steampipe/config/oci.spc with the correct SSH key file name.
+### SSH Key
+
+After the successful Ansible execution, put your personal OCI configuration and SSH PEM key into directory /home/steampipe/.oci. Replace the dummy values. Adapt file /home/steampipe/config/oci.spc with the correct SSH key file name.
 
 Take care that owner and group of the OCI configuration file is OS user _steampipe_.
 
@@ -144,8 +146,6 @@ Restart Docker container for Steampipe:
 # docker stop steampipe
 # docker start steampipe
 ```
-
-## Steampipe
 
 ### Oracle Cloud Infrastructure - Create the user for OCI API access - based on OCI CLI
 
@@ -196,7 +196,7 @@ Download the created private key in PEM format.
 Copy the configuration file preview, the values are used for Steampipe OCI configuration
 in file /home/steampipe/.oci/config.
 
-#### Example /home/steampipe/.oci/config
+### File /home/steampipe/.oci/config - OCI CLI Configuration
 
 ```bash
 [DEFAULT]
@@ -204,10 +204,10 @@ user=ocid1.user.oc1..aaaaa1234567890
 fingerprint=49:59:38:89:0d:39:1234567890
 tenancy=ocid1.tenancy.oc1..aaaaaaaaxuk4je4t3ao1234567890
 region=eu-zurich-1
-key_file=/home/steampipe/.oci/my_private_ssh_key_from_above.pem
+key_file=~/.oci/my_private_ssh_key_from_above.pem
 ```
 
-### OCI Regions
+### File /home/steampipe/config/oci.spc - Steampipe Region Filter
 
 To filter your regions, just edit the file _/home/steampipe/config/oci.spc_ - example:
 
@@ -219,6 +219,8 @@ connection "oci_tenant_kestenholz" {
   regions               = ["eu-frankfurt-1" , "eu-zurich-1"] # List of regions
 }
 ```
+
+### Steampipe Verification
 
 Here are some commands to verify if Steampipe is working properly and the connections works as expected. Execute as OS user root:
 
@@ -269,18 +271,6 @@ Manual execution and upload of the query result:
 # python3 pgsql-query-bv-zurich.py
 ```
 
-```bash
-Something went wrong: no connection config loaded for connection 'oci'
-```
-
-Restarting Steampipe as OS user root:
-
-```bash
-# docker stop steampipe
-# docker start steampipe
-
-```
-
 ## Prometheus Push Gateway
 
 According the Python script, new data is loaded in Prometheus Push Gateway to port 9091 and scraped by Prometheus port 9090. Example for Protheus Gateway where data is loaded by jobs _oci_blockvolume_/_oci_compute_.
@@ -326,6 +316,20 @@ drwxrwxr-x.  2 steampipe root           68 Aug 10 02:00 .
 -rw-------.  1      9193 root      3411203 Aug 10 07:19 database-2021-08-10.log
 ```
 
+### Steampipe Restart
+
+```bash
+Something went wrong: no connection config loaded for connection 'oci'
+```
+
+Restarting Steampipe as OS user root:
+
+```bash
+# docker stop steampipe
+# docker start steampipe
+
+```
+
 ## Oracle Cloud Infrastructure - Experimental
 
 26/11/2021: Testing still in progress.
@@ -354,5 +358,3 @@ ansible_ssh_private_key_file=/home/opc/.ssh/<your_ssh_key_file_name_here>
 ```
 
 - After the installation, it's a good practise to remove opc private key from compute instance again.
-
-
