@@ -45,7 +45,7 @@ Installed components by Ansible roles:
 - Internet access for download YUM packages and Ansible Galaxy role
 - Oracle Cloud Infrastructure user which has inspect permissions (how? see below) and his SSH PEM key and config
 
-### OL8 ESXi / OL8 VMware - Software Installation
+### Required YUM Packages
 
 As user root:
 
