@@ -147,6 +147,66 @@ Restart Docker container for Steampipe:
 
 ## Steampipe
 
+### Oracle Cloud Infrastructure - Create the user for OCI API access - based on OCI CLI
+
+Here we create an OCI user for monitoring, and existing OCI CLI setup for an tenant administrator is required to execute the steps. The required SSH key in PEM format can be downloaded in OCI web interface. The user, group and policy can be created iun web interface too. All we need for steampipe is the OCI config file for the new user and his SSH key in PEM format.
+
+#### Create User
+
+```bash
+oci iam user create --name oci_user_readonly --description "OCI User with inspect all-resources." 
+```
+
+#### Create Group
+
+```bash
+oci iam group create --name oci_group_readonly --description "OCI Group with inspect all-resources."
+```
+
+#### Add User to Group
+
+```bash
+oci iam group add-user \
+--user-id <your user OCID from created user above> \
+--group-id <your group OCID from created group above> \
+```
+
+#### Create Policy
+
+```bash
+oci iam policy create \
+--compartment-id <your tenancy OCID> \
+--name oci_policy_readonly \
+--description "OCI Policy with inspect all-resources." \
+--statements '[ "allow group oci_group_readonly to inspect all-resources on tenancy" ]' \
+```
+
+#### Add API Key
+
+![OCI API Key 01](images/oci_api_key_01.png)
+
+Add API key.
+
+![OCI API Key 02](images/oci_api_key_02.png)
+
+Download the created private key in PEM format.
+
+![OCI API Key 03](images/oci_api_key_03.png)
+
+Copy the configuration file preview, the values are used for Steampipe OCI configuration
+in file /home/steampipe/.oci/config.
+
+#### Example /home/steampipe/.oci/config
+
+```bash
+[DEFAULT]
+user=ocid1.user.oc1..aaaaa1234567890
+fingerprint=49:59:38:89:0d:39:1234567890
+tenancy=ocid1.tenancy.oc1..aaaaaaaaxuk4je4t3ao1234567890
+region=eu-zurich-1
+key_file=/home/steampipe/.oci/my_private_ssh_key_from_above.pem
+```
+
 ### OCI Regions
 
 To filter your regions, just edit the file _/home/steampipe/config/oci.spc_ - example:
@@ -295,62 +355,4 @@ ansible_ssh_private_key_file=/home/opc/.ssh/<your_ssh_key_file_name_here>
 
 - After the installation, it's a good practise to remove opc private key from compute instance again.
 
-### Oracle Cloud Infrastructure - How to create the user for OCI access - based on OCI CLI
 
-Here we create an OCI user for monitoring, and existing OCI CLI setup for an tenant administrator is required to execute the steps. The required SSH key in PEM format can be downloaded in OCI web interface. The user, group and policy can be created iun web interface too. All we need for steampipe is the OCI config file for the new user and his SSH key in PEM format.
-
-#### Create User
-
-```bash
-oci iam user create --name oci_user_readonly --description "OCI User with inspect all-resources." 
-```
-
-#### Create Group
-
-```bash
-oci iam group create --name oci_group_readonly --description "OCI Group with inspect all-resources."
-```
-
-#### Add User to Group
-
-```bash
-oci iam group add-user \
---user-id <your user OCID from created user above> \
---group-id <your group OCID from created group above> \
-```
-
-#### Create Policy
-
-```bash
-oci iam policy create \
---compartment-id <your tenancy OCID> \
---name oci_policy_readonly \
---description "OCI Policy with inspect all-resources." \
---statements '[ "allow group oci_group_readonly to inspect all-resources on tenancy" ]' \
-```
-
-#### Add API Key
-
-![OCI API Key 01](images/oci_api_key_01.png)
-
-Add API key.
-
-![OCI API Key 02](images/oci_api_key_02.png)
-
-Download the created private key in PEM format.
-
-![OCI API Key 03](images/oci_api_key_03.png)
-
-Copy the configuration file preview, the values are used for Steampipe OCI configuration
-in file /home/steampipe/.oci/config.
-
-#### Example /home/steampipe/.oci/config
-
-```bash
-[DEFAULT]
-user=ocid1.user.oc1..aaaaa1234567890
-fingerprint=49:59:38:89:0d:39:1234567890
-tenancy=ocid1.tenancy.oc1..aaaaaaaaxuk4je4t3ao1234567890
-region=eu-zurich-1
-key_file=/home/steampipe/.oci/my_private_ssh_key_from_above.pem
-```
