@@ -6,6 +6,9 @@ Installs a basic OCI monitoring solution with these components based on Ansible 
 
 - OL8 running in ESXi
 - OL8 running in local VMware Workstation with NAT
+
+Actually not supported - test in progress:
+
 - OL8 running in Oracle Cloud Infrastructure
 
 Installed components by Ansible roles:
@@ -42,7 +45,7 @@ Installed components by Ansible roles:
 - Internet access for download YUM packages and Ansible Galaxy role
 - Oracle Cloud Infrastructure user which has inspect permissions (how? see below) and his SSH PEM key and config
 
-### OL8 ESXi / OL8 VMware - Software Installation 
+### OL8 ESXi / OL8 VMware - Software Installation
 
 As user root:
 
@@ -51,17 +54,6 @@ yum -y install yum-utils
 yum -y install oracle-epel-release-el8
 yum-config-manager --enable ol8_developer_EPEL
 yum -y install ansible git
-```
-
-### Oracle Cloud Infrastructure - Software Installation OL8
-
-As user opc:
-
-```bash
-sudo dnf upgrade
-sudo dnf -y install oracle-epel-release-el8
-sudo dnf config-manager --enable ol8_developer_EPEL
-sudo dnf -y install ansible git
 ```
 
 ## Installation and Configuration
@@ -86,20 +78,6 @@ uid=0(root) gid=0(root) groups=0(root) context=unconfined_u:unconfined_r:unconfi
 ```bash
 # cd oci-monitoring
 ```
-
-### Oracle Cloud Infrastructure - Adapt Ansible _hosts_ file in directory with your ip and the path to the opc SSH key
-
-- Add path to SSH key and local IP address
-
-```bash
-[all:vars]
-ansible_ssh_private_key_file=/home/opc/.ssh/<your_ssh_key_file_name_here>
-
-[monitoring]
-<your_oci_compute_private_instance_IP_here> ansible_user=opc ansible_python_interpreter="/usr/bin/env python3"
-```
-
-- After the installation, it's a good practise to remove opc private key from compute instance again.
 
 ### OL8 ESXi / OL8 VMware - Adapt Ansible _hosts_ file in directory with your ip and root password (ansible_ssh_pass) - required for local connections
 
@@ -165,67 +143,6 @@ Restart Docker container for Steampipe:
 ```bash
 # docker stop steampipe
 # docker start steampipe
-```
-
-## Note: How to create the user for OCI access - based on OCI CLI
-
-Here we create an OCI user for monitoring, and existing OCI CLI setup for an tenant administrator is required to execute the steps. The required SSH key in PEM format can be downloaded in OCI web interface. The user, group and policy can be created iun web interface too. All we need for steampipe is the OCI config file for the new user and his SSH key in PEM format.
-
-### Create User
-
-```bash
-oci iam user create --name oci_user_readonly --description "OCI User with inspect all-resources." 
-```
-
-### Create Group
-
-```bash
-oci iam group create --name oci_group_readonly --description "OCI Group with inspect all-resources."
-```
-
-### Add User to Group
-
-```bash
-oci iam group add-user \
---user-id <your user OCID from created user above> \
---group-id <your group OCID from created group above> \
-```
-
-### Create Policy
-
-```bash
-oci iam policy create \
---compartment-id <your tenancy OCID> \
---name oci_policy_readonly \
---description "OCI Policy with inspect all-resources." \
---statements '[ "allow group oci_group_readonly to inspect all-resources on tenancy" ]' \
-```
-
-### Add API Key
-
-![OCI API Key 01](images/oci_api_key_01.png)
-
-Add API key.
-
-![OCI API Key 02](images/oci_api_key_02.png)
-
-Download the created private key in PEM format.
-
-![OCI API Key 03](images/oci_api_key_03.png)
-
-Copy the configuration file preview, the values are used for Steampipe OCI configuration
-in file /home/steampipe/.oci/config.
-
-### Example /home/steampipe/.oci/config
-
-```bash
-[DEFAULT]
-user=ocid1.user.oc1..aaaaa1234567890
-fingerprint=49:59:38:89:0d:39:1234567890
-tenancy=ocid1.tenancy.oc1..aaaaaaaaxuk4je4t3ao1234567890
-region=eu-zurich-1
-key_file=/home/steampipe/.oci/my_private_ssh_key_from_above.pem
-
 ```
 
 ## Steampipe
@@ -306,7 +223,7 @@ Restarting Steampipe as OS user root:
 
 ## Prometheus Push Gateway
 
-According the Python script, new data is loaded in Prometheus Push Gateway to port 9091 and scraped by Prometheus port 9090. Example for Protheus Gateway where data is loaded by jobs _oci_blockvolume_ / _oci_compute_.
+According the Python script, new data is loaded in Prometheus Push Gateway to port 9091 and scraped by Prometheus port 9090. Example for Protheus Gateway where data is loaded by jobs _oci_blockvolume_/_oci_compute_.
 
 ![OCI Prometheus Push Gateway 01](images/oci_pushgateway_01.png)
 
@@ -349,6 +266,91 @@ drwxrwxr-x.  2 steampipe root           68 Aug 10 02:00 .
 -rw-------.  1      9193 root      3411203 Aug 10 07:19 database-2021-08-10.log
 ```
 
-## Known Issues
+## Oracle Cloud Infrastructure - Experimental
 
-Actually tested with Grafana 7.5.0.
+26/11/2021: Testing still in progress.
+
+### Oracle Cloud Infrastructure - Software Installation OL8
+
+As user opc:
+
+```bash
+sudo dnf upgrade
+sudo dnf -y install oracle-epel-release-el8
+sudo dnf config-manager --enable ol8_developer_EPEL
+sudo dnf -y install ansible git
+```
+
+### Oracle Cloud Infrastructure - Adapt Ansible _hosts_ file in directory with your ip and the path to the opc SSH key
+
+- Add path to SSH key and local IP address
+
+```bash
+[all:vars]
+ansible_ssh_private_key_file=/home/opc/.ssh/<your_ssh_key_file_name_here>
+
+[monitoring]
+<your_oci_compute_private_instance_IP_here> ansible_user=opc ansible_python_interpreter="/usr/bin/env python3"
+```
+
+- After the installation, it's a good practise to remove opc private key from compute instance again.
+
+### Oracle Cloud Infrastructure - How to create the user for OCI access - based on OCI CLI
+
+Here we create an OCI user for monitoring, and existing OCI CLI setup for an tenant administrator is required to execute the steps. The required SSH key in PEM format can be downloaded in OCI web interface. The user, group and policy can be created iun web interface too. All we need for steampipe is the OCI config file for the new user and his SSH key in PEM format.
+
+#### Create User
+
+```bash
+oci iam user create --name oci_user_readonly --description "OCI User with inspect all-resources." 
+```
+
+#### Create Group
+
+```bash
+oci iam group create --name oci_group_readonly --description "OCI Group with inspect all-resources."
+```
+
+#### Add User to Group
+
+```bash
+oci iam group add-user \
+--user-id <your user OCID from created user above> \
+--group-id <your group OCID from created group above> \
+```
+
+#### Create Policy
+
+```bash
+oci iam policy create \
+--compartment-id <your tenancy OCID> \
+--name oci_policy_readonly \
+--description "OCI Policy with inspect all-resources." \
+--statements '[ "allow group oci_group_readonly to inspect all-resources on tenancy" ]' \
+```
+
+#### Add API Key
+
+![OCI API Key 01](images/oci_api_key_01.png)
+
+Add API key.
+
+![OCI API Key 02](images/oci_api_key_02.png)
+
+Download the created private key in PEM format.
+
+![OCI API Key 03](images/oci_api_key_03.png)
+
+Copy the configuration file preview, the values are used for Steampipe OCI configuration
+in file /home/steampipe/.oci/config.
+
+#### Example /home/steampipe/.oci/config
+
+```bash
+[DEFAULT]
+user=ocid1.user.oc1..aaaaa1234567890
+fingerprint=49:59:38:89:0d:39:1234567890
+tenancy=ocid1.tenancy.oc1..aaaaaaaaxuk4je4t3ao1234567890
+region=eu-zurich-1
+key_file=/home/steampipe/.oci/my_private_ssh_key_from_above.pem
+```
