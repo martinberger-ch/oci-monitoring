@@ -20,7 +20,7 @@
 
 - name: Set Fact for Prometheus Docker IPv4
   set_fact:
-    prometheus_ipv4: "{{ result.container.NetworkSettings.IPAddress }}"
+    prometheus_ipv4: "{{ ipv4result.container.NetworkSettings.IPAddress }}"
   tags: grafana
 
 - name: create directory if they don't exist
