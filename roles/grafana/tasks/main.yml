@@ -1,6 +1,28 @@
 ---
 # tasks file for grafana
 
+- name: Get infos on container Prometheus
+  docker_container_info:
+    name: grafana
+  register: ipv4result
+  tags: grafana
+
+- name: Does container exist?
+  debug:
+    msg: "The container {{ 'exists' if ipv4result.exists else 'does not exist' }}"
+  tags: grafana
+
+- name: Print information about container
+  debug:
+    var: result.container.NetworkSettings.IPAddress
+  when: ipv4result.exists
+  tags: grafana
+
+- name: Set Fact for Prometheus Docker IPv4
+  set_fact:
+    prometheus_ipv4: "{{ result.container.NetworkSettings.IPAddress }}"
+  tags: grafana
+
 - name: create directory if they don't exist
   file:
     path: "{{ item }}"

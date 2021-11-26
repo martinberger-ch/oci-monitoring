@@ -5,7 +5,7 @@
   roles:
     - docker
     - steampipe
+    - prometheus
     - postgresql
     - grafana
-    - prometheus
     - pushgateway
