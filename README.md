@@ -284,7 +284,7 @@ Grafana is reachable by address _your-machine-ip:3000_.
 - Username: admin
 - Password: welcome1
 
-The Prometheus data source and a basic dashboard are deployed during the Grafana Docker setup process. Example for dasboard _OCI Demo - eu-zurich-1_:
+The Prometheus data source and a basic dashboard are deployed during the Grafana Docker setup process. Example for dashboard _OCI Demo - eu-zurich-1_:
 
 Prometheus data source:
 ![OCI Grafana 01](images/oci_grafana_01.png)
