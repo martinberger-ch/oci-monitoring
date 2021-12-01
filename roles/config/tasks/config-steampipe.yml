@@ -26,7 +26,20 @@
     group: steampipe
     mode: 0644
   loop:
-    - oci_bv_eu_frankfurt_1.sql
-    - oci_bv_eu_zurich_1.sql
+    - steampipe/oci_bv_eu_frankfurt_1.sql
+    - steampipe/oci_bv_eu_zurich_1.sql
   tags:
     - steampipe
+
+- name: Setting facts so that they will be persisted in the fact cache
+  set_fact:
+    steampipe_connect_string: "{{ steampipe_connect.stdout }}"
+  tags: copy
+
+- debug: msg="{{steampipe_connect_string}}"
+
+- name: Register dummy host with variable to use it in next playbook
+  add_host:
+    name: "dummy_host"
+    transfer_var: "{{ steampipe_connect_string }}"
+  tags: copy

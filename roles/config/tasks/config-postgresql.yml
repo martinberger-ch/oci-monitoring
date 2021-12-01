@@ -1,0 +1,30 @@
+# tasks file for config-postgresql
+
+- debug: msg="{{ hostvars['dummy_host']['transfer_var'] }}"
+  tags: copy
+
+- name: Set Fact for Python Template processing based on Dummy Host variable
+  set_fact:
+    steampipe_connect_string: "{{ hostvars['dummy_host']['transfer_var'] }}"
+    cacheable: no
+  tags: copy
+
+- name: Copy OCI BV Python Template eu-zurich-1
+  template:
+    dest: /home/steampipe/py/pgsql-query-bv-zurich.py
+    force: true
+    src: pgsql-query-bv-zurich.py.j2
+    mode: 0644
+    owner: steampipe
+    group: steampipe
+  tags: steampipe
+
+- name: Copy OCI CI Python Template eu-zurich-1
+  template:
+    dest: /home/steampipe/py/pgsql-query-ci-running-zurich.py
+    force: true
+    src: pgsql-query-ci-running-zurich.py.j2
+    mode: 0644
+    owner: steampipe
+    group: steampipe
+  tags: steampipe
