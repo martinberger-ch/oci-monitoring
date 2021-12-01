@@ -23,7 +23,7 @@ try:
 
         g = Gauge('oci_compute_blockvolumes_summary_zrh', 'OCI Compute Block Volumes Summary ZRH', registry=registry)
         g.set(int(bv_zurich))
-        push_to_gateway('127.0.0.1:9091', job='oci_blockvolume', registry=registry)
+        push_to_gateway('{{ ansible_default_ipv4.address }}:9091', job='oci_blockvolume', registry=registry)
 
     finally:
         con.close()

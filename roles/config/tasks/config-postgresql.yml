@@ -13,7 +13,7 @@
   template:
     dest: /home/steampipe/py/pgsql-query-bv-zurich.py
     force: true
-    src: pgsql-query-bv-zurich.py.j2
+    src: postgresql/pgsql-query-bv-zurich.py.j2
     mode: 0644
     owner: steampipe
     group: steampipe
@@ -23,7 +23,7 @@
   template:
     dest: /home/steampipe/py/pgsql-query-ci-running-zurich.py
     force: true
-    src: pgsql-query-ci-running-zurich.py.j2
+    src: postgresql/pgsql-query-ci-running-zurich.py.j2
     mode: 0644
     owner: steampipe
     group: steampipe
