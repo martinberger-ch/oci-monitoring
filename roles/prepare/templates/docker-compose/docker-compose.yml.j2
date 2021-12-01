@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   prometheus:
-    image: prom/prometheus:v2.16.0
+    image: prom/prometheus
     container_name: prometheus
     volumes:
       - /etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:Z
@@ -23,7 +23,7 @@ services:
     restart: unless-stopped
 
   grafana:
-    image: grafana/grafana:6.6.2
+    image: grafana/grafana
     container_name: grafana
     volumes:
       - /etc/grafana/provisioning:/etc/grafana/provisioning:Z
