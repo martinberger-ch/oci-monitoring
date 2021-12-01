@@ -5,5 +5,3 @@
 - include_tasks: prepare-prometheus.yml
 - include_tasks: prepare-pushgateway.yml
 - include_tasks: prepare-docker-compose.yml
-- include_tasks: prepare-steampipe.yml
-- include_tasks: prepare-postgresql.yml

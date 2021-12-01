@@ -5,6 +5,7 @@
   roles:
     - prepare
     - docker
+    - docker-compose
     #- steampipe
     #- postgresql
     #- prometheus-pre

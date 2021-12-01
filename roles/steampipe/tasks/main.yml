@@ -64,7 +64,6 @@
       - "0.0.0.0:9193:9193"
     container_default_behavior: no_defaults
   tags: steampipe
-
 - name: Install OCI Plugin
   community.docker.docker_container_exec:
     container: steampipe
