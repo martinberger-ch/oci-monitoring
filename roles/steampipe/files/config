@@ -1,6 +1,0 @@
-[DEFAULT]
-user=<add your user OCID>
-fingerprint=<add your user SSH fingerprint>
-tenancy=<add your tenancy OCID>
-region=<add your region>
-key_file=~/.oci/<add your user SSH keyfile name and location>
