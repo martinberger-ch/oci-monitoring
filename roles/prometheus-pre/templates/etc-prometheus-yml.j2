@@ -1,0 +1,6 @@
+# A scrape configuration scraping a Node Exporter and the Prometheus server 
+# itself. 
+scrape_configs: 
+  - job_name: 'prometheus' 
+    static_configs: 
+     - targets: ['localhost:9090']

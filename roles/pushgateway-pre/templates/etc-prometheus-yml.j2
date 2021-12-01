@@ -1,0 +1,6 @@
+ # The Push Gateway Configuration
+  - job_name: pushgateway
+    # prometheus push gateway pull
+    honor_labels: false
+    static_configs:
+     - targets: ['{{ ansible_default_ipv4.address }}:9091']

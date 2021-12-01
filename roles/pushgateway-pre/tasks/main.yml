@@ -1,0 +1,50 @@
+---
+# tasks file for pushgateway
+
+- name: Ensure group 'prometheus' exists
+  group:
+    name: prometheus
+    state: present
+
+- name: Add Gateway Scrape Config
+  lineinfile:
+    insertafter: EOF
+    path: /etc/prometheus/prometheus.yml
+    line: "{{ lookup('template', 'etc-prometheus-yml.j2') }}"
+    mode: 0644
+    owner: prometheus
+    group: prometheus
+
+- name: Pull Prometheus Push Gateway Image
+  community.docker.docker_image:
+    name: prom/pushgateway
+    source: pull
+
+- name: Create Prometheus Container and start
+  community.docker.docker_container:
+    name: pushgateway
+    image: prom/pushgateway
+    volumes:
+      - "/etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+    ports:
+      - "0.0.0.0:9091:9091"
+    restart_policy: always
+    container_default_behavior: no_defaults
+  tags: gateway
+
+- name: enable port 9091 in firewall rules
+  firewalld:
+    port: 9091/tcp
+    state: enabled
+
+- name: Stop a container
+  community.docker.docker_container:
+    name: prometheus
+    state: stopped
+    container_default_behavior: no_defaults
+
+- name: Start a container
+  community.docker.docker_container:
+    name: prometheus
+    state: started
+    container_default_behavior: no_defaults

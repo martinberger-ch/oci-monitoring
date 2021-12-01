@@ -3,9 +3,10 @@
   hosts: monitoring
   become: yes
   roles:
+    - prepare
     - docker
-    - steampipe
-    - prometheus
-    - postgresql
-    - grafana
-    - pushgateway
+    #- steampipe
+    #- postgresql
+    #- prometheus-pre
+    #- grafana-pre
+    #- pushgateway-pre

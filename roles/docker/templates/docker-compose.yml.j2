@@ -1,0 +1,36 @@
+version: '1.0'
+services:
+  prometheus:
+    image: prom/prometheus:v2.16.0
+    container_name: prometheus
+    volumes:
+      - /etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:Z
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/home/prometheus/data'
+      - '--storage.tsdb.retention.time=21d'
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  pushgateway:
+    image: prom/pushgateway
+    container_name: pushgateway
+    volumes:
+      - /etc/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:Z
+    ports:
+      - "9091:9091"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:6.6.2
+    container_name: grafana
+    volumes:
+      - /etc/grafana/provisioning:/etc/grafana/provisioning:Z
+    environment:
+      GF_SECURITY_ADMIN_USER: "admin"
+      GF_SECURITY_ADMIN_PASSWORD: "welcome1"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
