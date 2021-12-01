@@ -1,0 +1,32 @@
+# tasks file for config-steampipe
+
+- name: Install OCI Plugin
+  community.docker.docker_container_exec:
+    container: steampipe
+    command: /bin/bash -c "steampipe plugin install oci"
+  tags: steampipe
+
+- name: Get PG Connect String
+  shell: docker exec -it steampipe steampipe service status | grep postgres | awk '{ sub(/^[ \t]+/, ""); print }'
+  args:
+    executable: /bin/bash
+  register: steampipe_connect
+  tags:
+    - steampipe
+
+- debug: msg="{{ steampipe_connect.stdout }}"
+  tags:
+    - steampipe
+
+- name: Copy SQL files
+  copy:
+    src: "{{item}}"
+    dest: "/home/steampipe/sql"
+    owner: steampipe
+    group: steampipe
+    mode: 0644
+  loop:
+    - oci_bv_eu_frankfurt_1.sql
+    - oci_bv_eu_zurich_1.sql
+  tags:
+    - steampipe

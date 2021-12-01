@@ -63,13 +63,7 @@
     user: root
   tags: grafana
 
-- name: Install Grafana time and date panel
-  community.docker.docker_container_exec:
-    container: grafana
-    command: /bin/bash -c "grafana-cli --homepath /usr/share/grafana plugins install grafana-clock-panel"
-    chdir: /root
-    user: root
-  tags: grafana
+
 
 - name: Grafana Data Source Configuration
   template:

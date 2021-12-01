@@ -52,6 +52,8 @@ services:
   steampipe:
     image: turbot/steampipe
     container_name: steampipe
+  command:
+      - '--foreground'
     volumes:
       - /home/steampipe/logs:/home/steampipe/.steampipe/logs:Z
       - /home/steampipe/.oci:/home/steampipe/.oci:Z

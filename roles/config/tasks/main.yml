@@ -1,0 +1,5 @@
+---
+# tasks file for prepare
+
+- include_tasks: config-grafana.yml
+- include_tasks: config-steampipe.yml
