@@ -43,3 +43,31 @@
     name: "dummy_host"
     transfer_var: "{{ steampipe_connect_string }}"
   tags: copy
+
+- name: Remove file (delete file)
+  ansible.builtin.file:
+    path: /home/steampipe/config/oci.spc
+    state: absent
+  tags: steampipe
+
+- name: Copy OCI Steampipe template
+  template:
+    dest: /home/steampipe/config/oci.spc
+    force: true
+    src: steampipe/etc-oci.spc.j2
+    mode: 0644
+    owner: steampipe
+    group: steampipe
+  tags: steampipe
+
+- name: Copy OCI configuration files
+  copy:
+    src: "steampipe/{{item}}"
+    dest: "/home/steampipe/.oci"
+    owner: steampipe
+    group: steampipe
+    mode: 0644
+  loop:
+    - config
+  tags:
+    - steampipe
