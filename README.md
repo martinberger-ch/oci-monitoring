@@ -6,9 +6,6 @@ Installs a basic OCI monitoring solution with these components based on Ansible 
 
 - OL8 running in ESXi
 - OL8 running in local VMware Workstation with NAT
-
-Actually not supported - test in progress:
-
 - OL8 running in Oracle Cloud Infrastructure
 
 Installed components by Ansible roles:
@@ -19,6 +16,8 @@ Installed components by Ansible roles:
 - Prometheus
 - Push Gateway
 - PostgreSQL
+
+The Docker container are started by docker-compose.
 
 ## Links
 
@@ -44,21 +43,21 @@ Installed components by Ansible roles:
 - Ansible and Git configured
 - Internet access for download YUM packages and Ansible Galaxy role
 - Oracle Cloud Infrastructure user which has inspect permissions (how? see below) and his SSH PEM key and config
+- SELinux disabled
 
 ### Required YUM Packages
 
 As user root:
 
 ```bash
-yum -y install yum-utils
-yum -y install oracle-epel-release-el8
-yum-config-manager --enable ol8_developer_EPEL
-yum -y install ansible git
+dnf -y install oracle-epel-release-el8
+dnf config-manager --enable ol8_developer_EPEL
+dnf -y install ansible git
 ```
 
 ## Installation and Configuration
 
-### Login as OS user root into your Oracle Linux 8 server
+### Login as OS user root into your server
 
 ```bash
 # id
@@ -79,11 +78,26 @@ uid=0(root) gid=0(root) groups=0(root) context=unconfined_u:unconfined_r:unconfi
 # cd oci-monitoring
 ```
 
-### Adapt Ansible _hosts_ file in directory with your ip and root password (ansible_ssh_pass) - required for local connections
+### Adapt Ansible _hosts_ file in directory 
+
+#### On-prem with your ip and root password (ansible_ssh_pass) - required for local connections
 
 ```bash
 [monitoring]
 <your_local_IP_here> ansible_user=root ansible_ssh_pass=<your_root_password_here> ansible_python_interpreter="/usr/bin/env python3"
+```
+
+#### Oracle Cloud Infrastructure - with SSH key for OS user opc
+
+Copy the instance SSH key to .ssh directory, the key can be removed after the installation. Important: You have to use the
+private IP address.
+
+```bash
+[all:vars]
+ansible_ssh_private_key_file=/home/opc/.ssh/ssh-key-2021-09-22.key
+
+[monitoring]
+<your_private_IP_here> ansible_user=opc ansible_python_interpreter="/usr/bin/env python3"
 ```
 
 ### Run _ansible-galaxy collection install -r roles/requirements.yml_
@@ -282,7 +296,7 @@ According the Python script, new data is loaded in Prometheus Push Gateway to po
 Grafana is reachable by address _your-machine-ip:3000_.
 
 - Username: admin
-- Password: welcome1
+- Password: Welcome1
 
 The Prometheus data source and a basic dashboard are deployed during the Grafana Docker setup process. Example for dashboard _OCI Demo - eu-zurich-1_:
 
@@ -327,34 +341,13 @@ Restarting Steampipe as OS user root:
 ```bash
 # docker stop steampipe
 # docker start steampipe
-
 ```
 
-## Oracle Cloud Infrastructure - Experimental
-
-26/11/2021: Testing still in progress.
-
-### Oracle Cloud Infrastructure - Software Installation OL8
-
-As user opc:
+### Grafana Panel Installation
 
 ```bash
-sudo dnf upgrade
-sudo dnf -y install oracle-epel-release-el8
-sudo dnf config-manager --enable ol8_developer_EPEL
-sudo dnf -y install ansible git
+TASK [config : include_tasks] ******************************************************************************************************************************************************************
+fatal: [192.168.201.57]: FAILED! => {"reason": "couldn't resolve module/action 'community.docker.docker_container_exec'. This often indicates a misspelling, missing collection, or incorrect module path.\n\nThe error appears to be in '/root/git/oci-monitoring/roles/config/tasks/config-grafana.yml': line 4, column 3, but may\nbe elsewhere in the file depending on the exact syntax problem.\n\nThe offending line appears to be:\n\n\n- name: Install Grafana time and date panel\n  ^ here\n"}
 ```
 
-### Oracle Cloud Infrastructure - Adapt Ansible _hosts_ file in directory with your ip and the path to the opc SSH key
-
-- Add path to SSH key and local IP address
-
-```bash
-[all:vars]
-ansible_ssh_private_key_file=/home/opc/.ssh/<your_ssh_key_file_name_here>
-
-[monitoring]
-<your_oci_compute_private_instance_IP_here> ansible_user=opc ansible_python_interpreter="/usr/bin/env python3"
-```
-
-- After the installation, it's a good practise to remove opc private key from compute instance again.
+Restart installation.
