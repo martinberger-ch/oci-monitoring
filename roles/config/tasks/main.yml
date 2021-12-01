@@ -3,3 +3,4 @@
 
 - include_tasks: config-grafana.yml
 - include_tasks: config-steampipe.yml
+- include_tasks: config-postgresql.yml
