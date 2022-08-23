@@ -127,7 +127,7 @@ c6ecc72065c9   prom/prometheus    "/bin/prometheus --c…"   About an hour ago  
 
 ### Network Security
 
-The Ansible playbooks open additionally these ports in the VM for (troubleshooting) access:
+The Ansible playbooks opens additionally these ports in the VM for (troubleshooting) access:
 
 - 3000 - Grafana
 - 9090 - Prometheus
