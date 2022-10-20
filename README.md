@@ -1,11 +1,8 @@
-# Installation Guide for OCI Monitoring - EXPERIMENTAL
+# Installation Guide for OCI Monitoring
 
-Note: This is an experimental environment, feel free to try it out, extend it and have fun with it!
+Installs a basic OCI monitoring solution with these components based on Ansible on an Oracle Linux 8
+machine in Oracle Cloud Infrastructure.
 
-Installs a basic OCI monitoring solution with these components based on Ansible in Oracle Linux 8. The setup is tested for
-
-- OL8 running in ESXi
-- OL8 running in local VMware Workstation with NAT
 - OL8 running in Oracle Cloud Infrastructure
 
 Installed components by Ansible roles:
@@ -17,7 +14,7 @@ Installed components by Ansible roles:
 - Push Gateway
 - PostgreSQL
 
-The Docker container are started by docker-compose.
+The Docker containers are started by docker-compose.
 
 ## Links
 
@@ -38,20 +35,52 @@ The Docker container are started by docker-compose.
 
 ## Prerequisites
 
-- root access by password
+- opc SSH private key available on playbook execution host
 - /etc/hosts configured
 - Ansible and Git configured
 - Internet access for download YUM packages and Ansible Galaxy role
-- Oracle Cloud Infrastructure user which has inspect permissions (how? see below) and his SSH PEM key and config
+- OCI CLI configured with instance principal as user _oci_.
 - SELinux disabled
+
+## OCI CLI
+
+```bash
+sudo useradd oci
+sudo su - oci
+bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)"
+```
+
+Execute the setup with your user and tenat OCID, you can create a SSH key just for testing purpose. But it's not required for the
+setup.
+
+```bash
+oci setup config
+```
+
+### Instance Principals
+
+
+![OCI Dynamic Group](./images/dynamic_group.png)
+
+![OCI Policy](./images/policy.png)
+
+Verification. This command returns your Object Storage namespace.
+
+```bash
+oci os ns get --auth instance_principal
+```
+
+Add this variable to user's .bash_profile.
+
+```bash
+OCI_CLI_AUTH=instance_principal
+```
 
 ### Required YUM Packages
 
 As user root:
 
 ```bash
-dnf -y install oracle-epel-release-el8
-dnf config-manager --enable ol8_developer_EPEL
 dnf -y install ansible git
 ```
 
