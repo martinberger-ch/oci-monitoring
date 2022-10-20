@@ -42,39 +42,7 @@ The Docker containers are started by docker-compose.
 - OCI CLI configured with instance principal as user _oci_.
 - SELinux disabled
 
-## OCI CLI
 
-```bash
-sudo useradd oci
-sudo su - oci
-bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)"
-```
-
-Execute the setup with your user and tenat OCID, you can create a SSH key just for testing purpose. But it's not required for the
-setup.
-
-```bash
-oci setup config
-```
-
-### Instance Principals
-
-
-![OCI Dynamic Group](./images/dynamic_group.png)
-
-![OCI Policy](./images/policy.png)
-
-Verification. This command returns your Object Storage namespace.
-
-```bash
-oci os ns get --auth instance_principal
-```
-
-Add this variable to user's .bash_profile.
-
-```bash
-OCI_CLI_AUTH=instance_principal
-```
 
 ### Required YUM Packages
 
@@ -86,40 +54,36 @@ dnf -y install ansible git
 
 ## Installation and Configuration
 
-### Login as OS user root into your server
+### Login and change user to root.
+
+User _opc_ has sudoe permissions.
 
 ```bash
-# id
-uid=0(root) gid=0(root) groups=0(root) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+sudo su -
 ```
 
-### Clone the repository to a local folder like /root/git
+### Clone the repository to a local folder 
 
 ```bash
-# mkdir git
-# cd git
-# git clone https://github.com/martinberger-ch/oci-monitoring.git
+mkdir git
+cd git
+git clone https://github.com/martinberger-ch/oci-monitoring.git
 ```
 
 ### Change to subdirectory oci-monitoring
 
 ```bash
-# cd oci-monitoring
+cd oci-monitoring
 ```
 
-### Adapt Ansible _hosts_ file in directory 
-
-#### On-prem with your ip and root password (ansible_ssh_pass) - required for local connections
-
-```bash
-[monitoring]
-<your_local_IP_here> ansible_user=root ansible_ssh_pass=<your_root_password_here> ansible_python_interpreter="/usr/bin/env python3"
-```
+### Adapt Ansible _hosts_ file in directory
+`
 
 #### Oracle Cloud Infrastructure - with SSH key for OS user opc
 
-Copy the instance SSH key to .ssh directory, the key can be removed after the installation. Important: You have to use the
-private IP address.
+Copy the instance SSH key to .ssh directory of the user opc where you run ansible. Remove the private SSH key after the installation as it is a risk to have the private on the cloud instance. But in our case it is required for the setup by Ansible.
+
+Important: You have to use the private IP address in the configuration file.
 
 ```bash
 [all:vars]
@@ -131,11 +95,15 @@ ansible_ssh_private_key_file=/home/opc/.ssh/ssh-key-2021-09-22.key
 
 ### Run _ansible-galaxy collection install -r roles/requirements.yml_
 
+Installs the community docker module for Ansible. User is _root_.
+
 ```bash
 # ansible-galaxy collection install -r roles/requirements.yml
 ```
 
 ### Run _ansible-playbook install.yml_
+
+Creates users and directories, installs required software and configures Docker containers.
 
 ```bash
 # ansible-playbook install.yml
@@ -156,7 +124,8 @@ c6ecc72065c9   prom/prometheus    "/bin/prometheus --c…"   About an hour ago  
 
 ### Network Security
 
-The Ansible playbooks opens additionally these ports in the VM for (troubleshooting) access:
+The Ansible playbooks opens additionally these ports in the VM for (troubleshooting) access. Take care: you need
+to open these ports in the OCI VCN Security List too to get web access.
 
 - 3000 - Grafana
 - 9090 - Prometheus
@@ -165,36 +134,28 @@ The Ansible playbooks opens additionally these ports in the VM for (troubleshoot
 
 ## Steampipe
 
-### SSH Key
+As OS user _steampipe_, install the OCI CLI:
 
-After the successful Ansible execution, put your personal OCI configuration and SSH PEM key into directory /home/steampipe/.oci. Replace the dummy values. Adapt file /home/steampipe/config/oci.spc with the correct SSH key file name.
-
-Take care that owner and group of the OCI configuration file is OS user _steampipe_.
-
-Example:
+## OCI CLI
 
 ```bash
-# pwd
-/home/steampipe/.oci
-
-# ll
-total 8
--rw-r--r--. 1 steampipe steampipe  307 Aug  9 09:01 config
--rw-r--r--. 1 steampipe steampipe 1730 Aug  9 09:01 jurasuedfuss-20210809.pem
+sudo su - steampipe
+bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)"
 ```
 
-Restart Docker container for Steampipe:
+Execute the setup with your user and tenant OCID, create a new SSH key This key is later used.
 
 ```bash
-# docker stop steampipe
-# docker start steampipe
+oci setup config
 ```
 
 ### Oracle Cloud Infrastructure - Create the user for OCI API access - based on OCI CLI
 
-Here we create an OCI user for monitoring, and existing OCI CLI setup for an tenant administrator is required to execute the steps. The required SSH key in PEM format can be downloaded in OCI web interface. The user, group and policy can be created iun web interface too. All we need for steampipe is the OCI config file for the new user and his SSH key in PEM format.
+Here we create an OCI user for monitoring, and existing OCI CLI setup for an tenant administrator is required to execute the steps. The required SSH key in PEM format can be downloaded in OCI web interface. All we need for steampipe is the OCI config file for the new user and his SSH key in PEM format.
 
-#### Create User
+The user, group and policy can be created in web interface too.
+
+#### OCI-CLI Create User
 
 ```bash
 oci iam user create --name oci_user_readonly --description "OCI User with inspect all-resources." 
@@ -211,14 +172,14 @@ oci iam group create --name oci_group_readonly --description "OCI Group with ins
 ```bash
 oci iam group add-user \
 --user-id <your user OCID from created user above> \
---group-id <your group OCID from created group above> \
+--group-id <your group OCID from created group above>
 ```
 
 #### Create Policy
 
 ```bash
 oci iam policy create \
---compartment-id <your tenancy OCID> \
+--compartment-id <your root compartment OCID> \
 --name oci_policy_readonly \
 --description "OCI Policy with inspect all-resources." \
 --statements '[ "allow group oci_group_readonly to inspect all-resources on tenancy" ]' \
@@ -226,22 +187,18 @@ oci iam policy create \
 
 #### Add API Key
 
-![OCI API Key 01](images/oci_api_key_01.png)
+Copy the content of the public key file created by OCI CLI and add it to the user's API
+configuration.
 
-Add API key.
-
-![OCI API Key 02](images/oci_api_key_02.png)
-
-Download the created private key in PEM format.
-
-![OCI API Key 03](images/oci_api_key_03.png)
-
-Copy the configuration file preview, the values are used for Steampipe OCI configuration
-in file /home/steampipe/.oci/config.
+![API Key](./images/api_key_01.png)
 
 ### File /home/steampipe/.oci/config - OCI CLI Configuration
 
+Create the configuration file withe settings above. Set key_file path.
+
 ```bash
+vi /home/steampipe/.oci/config
+
 [DEFAULT]
 user=ocid1.user.oc1..aaaaa1234567890
 fingerprint=49:59:38:89:0d:39:1234567890
@@ -259,8 +216,15 @@ connection "oci_tenant_kestenholz" {
   plugin                = "oci"
   config_file_profile   = "DEFAULT"          # Name of the profile
   config_path           = "~/.oci/config"    # Path to config file
-  regions               = ["eu-frankfurt-1" , "eu-zurich-1"] # List of regions
+  regions               = ["eu-zurich-1"]    # List of regions
 }
+```
+
+Restart Docker container for Steampipe:
+
+```bash
+# docker stop steampipe
+# docker start steampipe
 ```
 
 ### Steampipe Verification
@@ -269,12 +233,19 @@ Here are some commands to verify if Steampipe is working properly and the connec
 
 ```bash
 # docker exec -it steampipe steampipe plugin list
+[root@ci-monitoring ~]# docker exec -it steampipe steampipe plugin list
 +--------------------------------------------+---------+-----------------------+
 | Name                                       | Version | Connections           |
 +--------------------------------------------+---------+-----------------------+
-| hub.steampipe.io/plugins/turbot/oci@latest | 0.1.0   | oci_tenant_kestenholz |
+| hub.steampipe.io/plugins/turbot/oci@latest | 0.17.1  | oci_tenant_kestenholz |
 +--------------------------------------------+---------+-----------------------+
+```
 
+Note: If the _Connections_ columns is empty, restart as user root the steampipe container again:
+
+```bash
+# docker stop steampipe
+# docker start steampipe
 ```
 
 ```bash

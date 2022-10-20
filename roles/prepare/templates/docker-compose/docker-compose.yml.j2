@@ -1,4 +1,9 @@
 version: '3.1'
+
+networks:
+  monitoring:
+    driver: bridge
+
 services:
   prometheus:
     image: prom/prometheus
@@ -12,6 +17,8 @@ services:
     ports:
       - "9090:9090"
     restart: unless-stopped
+    networks:
+      - monitoring
 
   pushgateway:
     image: prom/pushgateway
@@ -34,6 +41,8 @@ services:
     ports:
       - "3000:3000"
     restart: unless-stopped
+    networks:
+      - monitoring
 
   steampipe:
     image: turbot/steampipe
@@ -48,3 +57,5 @@ services:
     ports:
       - "9193:9193"
     restart: unless-stopped
+    networks:
+      - monitoring
