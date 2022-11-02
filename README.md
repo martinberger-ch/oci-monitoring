@@ -62,7 +62,7 @@ User, group and policy can be created in web interface too.
 
 ### Create Group
 
-![OCI Group](images\oci_group_readonly.jpg)
+![OCI Group](images/oci_group_readonly.jpg)
 
 ```bash
 oci iam group create --name oci_group_readonly --description "OCI Group with inspect all-resources privileges."
@@ -70,7 +70,7 @@ oci iam group create --name oci_group_readonly --description "OCI Group with ins
 
 ### Create IAM User
 
-![OCI User](images\oci_user_readonly.jpg)
+![OCI User](images/oci_user_readonly.jpg)
 
 ```bash
 oci iam user create --name oci_user_readonly --description "OCI User with inspect all-resources." 
@@ -78,7 +78,7 @@ oci iam user create --name oci_user_readonly --description "OCI User with inspec
 
 ### Add User to Group
 
-![OCI Group](images\oci_group_user.jpg)
+![OCI Group](images/oci_group_user.jpg)
 
 ```bash
 oci iam group add-user \
@@ -90,7 +90,7 @@ oci iam group add-user \
 
 According Steampipe.io: <https://hub.steampipe.io/plugins/turbot/oci>
 
-![OCI Policy](images\oci_policy_readonly.jpg)
+![OCI Policy](images/oci_policy_readonly.jpg)
 
 ```bash
 oci iam policy create \
@@ -106,7 +106,7 @@ The tenancy OCID will be used later for the OCI CLI configuration.
 
 Menu -> Governance & Administration -> Tenancy Details.
 
-![OCI Policy](images\oci_tenancy_ocid.jpg)
+![OCI Policy](images/oci_tenancy_ocid.jpg)
 
 ## OS
 
