@@ -15,7 +15,7 @@ This guide is tested in OL8 running on Oracle Cloud Infrastructure.
 4. Prometheus scrapes the metric from the gateway
 5. Grafana reads the metric from Prometheus
 
-## Installed components by Ansible roles:
+## Installed components by Ansible roles
 
 - Docker
 - Steampipe
