@@ -40,7 +40,6 @@ The Docker containers are started by docker-compose.
 - SSH keys user _opc_ related
 - OS access as user _opc_
 
-
 ## Prerequisites
 
 - opc SSH private key available on playbook execution host
@@ -51,7 +50,7 @@ The Docker containers are started by docker-compose.
 - SELinux set to permissive
 - An OCI User and Group with _inspect all-resources_ and _request.operation='GetConfiguration'_ privileges.
 
-### Oracle Cloud Infrastructure - Create the user for OCI API access - based on OCI CLI
+## Oracle Cloud Infrastructure - Create the user for OCI API access - based on OCI CLI
 
 First we need an OCI group, user and policy for monitoring. If you have admin privileges and an
 already configured OCI CLI, you can do it by CLI commands.
@@ -61,25 +60,25 @@ already configured OCI CLI, you can do it by CLI commands.
 
 User, group and policy can be created in web interface too.
 
-#### Create Group
+### Create Group
 
-![OCI Group](./images/oci_group_readonly.png)
+![OCI Group](images\oci_group_readonly.jpg)
 
 ```bash
 oci iam group create --name oci_group_readonly --description "OCI Group with inspect all-resources privileges."
 ```
 
-#### Create IAM User
+### Create IAM User
 
-![OCI User](./images/oci_user_readonly.png)
+![OCI User](images\oci_user_readonly.jpg)
 
 ```bash
 oci iam user create --name oci_user_readonly --description "OCI User with inspect all-resources." 
 ```
 
-#### Add User to Group
+### Add User to Group
 
-![OCI Group](./images/oci_group_user.png)
+![OCI Group](images\oci_group_user.jpg)
 
 ```bash
 oci iam group add-user \
@@ -87,11 +86,11 @@ oci iam group add-user \
 --group-id <your group OCID from created group above>
 ```
 
-#### Create Policy
+### Create Policy
 
 According Steampipe.io: <https://hub.steampipe.io/plugins/turbot/oci>
 
-![OCI Policy](./images/oci_policy_readonly.png)
+![OCI Policy](images\oci_policy_readonly.jpg)
 
 ```bash
 oci iam policy create \
@@ -101,13 +100,15 @@ oci iam policy create \
 --statements '[ "allow group oci_group_readonly to inspect all-resources on tenancy","allow group oci_group_readonly to manage all-resources in tenancy where request.operation='GetConfiguration'" ]' \
 ```
 
-#### Gather Tenancy OCID Information
+### Gather Tenancy OCID Information
 
 The tenancy OCID will be used later for the OCI CLI configuration.
 
 Menu -> Governance & Administration -> Tenancy Details.
 
-![OCI Policy](./images/oci_tenancy_ocid.png)
+![OCI Policy](images\oci_tenancy_ocid.jpg)
+
+## OS
 
 ### Required YUM Packages
 
