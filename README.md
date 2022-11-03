@@ -26,6 +26,11 @@ This guide is tested in OL8 running on Oracle Cloud Infrastructure.
 
 The Docker containers are started by docker-compose.
 
+## New OS User added
+
+During the Ansible playbook execution, a new OS user called_steampipe_ is created.
+
+
 ## Links
 
 - [Steampipe](https://steampipe.io/)
@@ -120,15 +125,9 @@ sudo dnf -y install ansible git
 
 ## Installation and Configuration
 
-### Login and change user to root.
+### Clone the repository to a local folder
 
-User _opc_ has sudo permissions.
-
-```bash
-sudo su -
-```
-
-### Clone the repository to a local folder 
+As user _opc_, clpone the repository.
 
 ```bash
 mkdir git
@@ -140,6 +139,34 @@ git clone https://github.com/martinberger-ch/oci-monitoring.git
 
 ```bash
 cd oci-monitoring
+```
+
+### Transfer SSH key for OS user opc for installation process and configure hosts file
+
+Copy the instance SSH key to .ssh directory of user _opc_ where you run ansible on the Compute Instance. Remove the private SSH key after the installation as it is a risk to have the private on the cloud instance. But in our case it is required during the the monitoring setup by Ansible.
+
+Edit hosts file in oci-monitoring subdirectory. Set path to:
+
+- private key of OS user _opc_
+- private IP of the Compute Instance
+
+```bash
+[all:vars]
+ansible_ssh_private_key_file=/home/opc/.ssh/ssh-key-2021-09-22.key
+
+[monitoring]
+<your_private_IP_here> ansible_user=opc ansible_python_interpreter="/usr/bin/env python3"
+```
+
+Ansible error message when SSH key, SSH key permissions or private IP address is not correct:
+
+```bash
+
+TASK [Gathering Facts] **********************************************************************************
+fatal: [10.0.2.211]: UNREACHABLE! => {"changed": false, "msg": "Failed to connect to the host via ssh: ssh: connect to host 10.0.2.211 port 22: Connection timed out", "unreachable": true}
+
+PLAY RECAP **********************************************************************************************
+10.0.2.211                 : ok=0    changed=0    unreachable=1    failed=0    skipped=0    rescued=0    ignored=0
 ```
 
 ### Run _ansible-galaxy collection install -r roles/requirements.yml_
@@ -160,10 +187,10 @@ Creates users and directories, installs required software and configures Docker 
 
 ## Verification
 
-As OS user root, verify is all Docker containers are running:
+Verify is all Docker containers are running:
 
 ```bash
-# docker ps
+$ sudo docker ps
 CONTAINER ID   IMAGE              COMMAND                  CREATED             STATUS             PORTS                    NAMES
 f7f2e137f4a1   prom/pushgateway   "/bin/pushgateway"       About an hour ago   Up About an hour   0.0.0.0:9091->9091/tcp   pushgateway
 c6ecc72065c9   prom/prometheus    "/bin/prometheus --c…"   About an hour ago   Up About an hour   0.0.0.0:9090->9090/tcp   prometheus
@@ -181,36 +208,66 @@ to open these ports in the OCI VCN Security List too to get web access.
 - 9091 - Prometheus Push Gateway
 - 9093 - Steampipe Service
 
-### Oracle Cloud Infrastructure - with SSH key for OS user opc
+### Reachability Verification
 
-Copy the instance SSH key to .ssh directory of the user opc where you run ansible. Remove the private SSH key after the installation as it is a risk to have the private on the cloud instance. But in our case it is required for the setup by Ansible.
+Verify if Grafana is reachable by your workstation - IP: http://<your-custom-image-ip>:3000
 
-Important: You have to use the private IP address in the configuration file.
+![Grafana Login](images/grafana_login.jpg)
+
+## Python Update
+
+<https://docs.oracle.com/en/operating-systems/oracle-linux/8/python/>
+
+As OS user root
 
 ```bash
-[all:vars]
-ansible_ssh_private_key_file=/home/opc/.ssh/ssh-key-2021-09-22.key
-
-[monitoring]
-<your_private_IP_here> ansible_user=opc ansible_python_interpreter="/usr/bin/env python3"
+# dnf install -y python39
 ```
+
+```bash
+# alternatives --config python3
+
+There are 2 programs which provide 'python3'.
+
+  Selection    Command
+-----------------------------------------------
+*+ 1           /usr/bin/python3.6
+   2           /usr/bin/python3.9
+
+Enter to keep the current selection[+], or type selection number: 2
+
+```
+
+```bash
+# python -V
+Python 3.9.7
+```
+
 ## Steampipe
 
 As OS user _steampipe_, install the OCI CLI. Answer all questions with _enter_.
 
 ## OCI CLI
 
+### Install OCI CLI
+
 ```bash
 sudo su - steampipe
 bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)"
 ```
 
-Execute the setup with your user and tenant OCID, create a new API Signing Key Pair.This key is later used. Use
+### Configure OCI CLI
 
-- OCID of created user
+Execute the setup with your user and tenant OCID, create a new API Signing Key Pair. This key is later used in OCI web interface. 
+
+Use these parameters:
+
+- OCID of created user _oci_user_readonly_
 - OCID of the tenancy
+- Your preferred region - e.g.  _eu-zurich-1_.
+- Config location: /home/steampipe/.oci/config
 
-from the user creation process. Example for region _zurich_.
+If there is already an existing profile, overwrite the file. A new config file and profile is created.  
 
 ```bash
 oci setup config
@@ -432,3 +489,4 @@ fatal: [192.168.201.57]: FAILED! => {"reason": "couldn't resolve module/action '
 ```
 
 Restart installation.
+
