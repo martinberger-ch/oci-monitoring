@@ -251,6 +251,8 @@ As OS user _steampipe_, install the OCI CLI. Answer all questions with _enter_.
 
 ### Install OCI CLI
 
+Install and configure the OCI CLI as OS user _opc_.
+
 ```bash
 sudo su - steampipe
 bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)"
@@ -267,13 +269,11 @@ Use these parameters:
 - Your preferred region - e.g.  _eu-zurich-1_.
 - Config location: /home/steampipe/.oci/config
 
-If there is already an existing profile, overwrite the file. A new config file and profile is created.  
+If there is already an existing profile, overwrite the file. A new config file and profile is created. In this case, a password for the SSH key is used.
+Let the setup tool write it into the OCI config file.
 
 ```bash
-oci setup config
-
-/home/steampipe/lib/oracle-cli/lib64/python3.6/site-packages/oci/_vendor/httpsig_cffi/sign.py:10: CryptographyDeprecationWarning: Python 3.6 is no longer supported by the Python core team. Therefore, support for it is deprecated in cryptography and will be removed in a future release.
-  from cryptography.hazmat.backends import default_backend  # noqa: F401
+$ oci setup config
     This command provides a walkthrough of creating a valid CLI config file.
 
     The following links explain where to find the information required by this
@@ -293,8 +293,8 @@ oci setup config
 
 
 Enter a location for your config [/home/steampipe/.oci/config]:
-Enter a user OCID: ocid1.user.oc1..aaaaaaaalot4gawqm2sx54cwedzsxslehkb4k4umszksk7qogci1234567
-Enter a tenancy OCID: ocid1.tenancy.oc1..aaaaaaaaagcamhpk2tn6josi7qqt6fzlnrvytfa3tv3cszkmkfz1234567
+Enter a user OCID: ocid1.user.oc1..aaaaaaaawg5x5p5p57e3c2vnnmwhqn7bpjnumuwiuseaojw55u6ccl5aea6a
+Enter a tenancy OCID: ocid1.tenancy.oc1..aaaaaaaaagcamhpk2tn6josi7qqt6fzlnrvytfa3tv3cszkmkfzfsczlnnsa
 Enter a region by index or name(e.g.
 1: af-johannesburg-1, 2: ap-chiyoda-1, 3: ap-chuncheon-1, 4: ap-dcc-canberra-1, 5: ap-hyderabad-1,
 6: ap-ibaraki-1, 7: ap-melbourne-1, 8: ap-mumbai-1, 9: ap-osaka-1, 10: ap-seoul-1,
@@ -305,13 +305,15 @@ Enter a region by index or name(e.g.
 31: sa-santiago-1, 32: sa-saopaulo-1, 33: sa-vinhedo-1, 34: uk-cardiff-1, 35: uk-gov-cardiff-1,
 36: uk-gov-london-1, 37: uk-london-1, 38: us-ashburn-1, 39: us-gov-ashburn-1, 40: us-gov-chicago-1,
 41: us-gov-phoenix-1, 42: us-langley-1, 43: us-luke-1, 44: us-phoenix-1, 45: us-sanjose-1): 24
-Do you want to generate a new API Signing RSA key pair? (If you decline you will be asked to supply the path to an existing key.) [Y/n]:
+Do you want to generate a new API Signing RSA key pair? (If you decline you will be asked to supply the path to an existing key.) [Y/n]: Y
 Enter a directory for your keys to be created [/home/steampipe/.oci]:
 Enter a name for your key [oci_api_key]:
 Public key written to: /home/steampipe/.oci/oci_api_key_public.pem
 Enter a passphrase for your private key (empty for no passphrase):
+Repeat for confirmation:
 Private key written to: /home/steampipe/.oci/oci_api_key.pem
-Fingerprint: c9:ce:39:fa:20:5f:6f:4b:a2:6b:a5:f3:cf:0e:90:fe
+Fingerprint: b8:1c:03:c9:80:e7:b0:24:38:80:ce:2e:d9:07:6b:48
+Do you want to write your passphrase to the config file? (If not, you will need to enter it when prompted each time you run an oci command) [y/N]: y
 Config written to /home/steampipe/.oci/config
 
 
@@ -320,7 +322,6 @@ Config written to /home/steampipe/.oci/config
     'How to upload the public key':
 
         https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#How2
-
 
 ```
 
@@ -333,9 +334,9 @@ configuration.
 cat /home/steampipe/.oci/oci_api_key_public.pem
 ```
 
-![API Key](./images/api_key_01.png)
+![API Key](images/oci_api_key.jpg)
 
-Verify the functionality of the OCI CLI - get Object Storage namespace name:
+Verify the functionality of the OCI CLI - get Oracle Cloud Infrastructure Object Storage namespace name:
 
 ```bash
 oci os ns get
@@ -346,7 +347,7 @@ oci os ns get
 
 ### File /home/steampipe/config/oci.spc - Steampipe Region Filter
 
-To filter your regions, just edit the file _/home/steampipe/config/oci.spc_ - example:
+The configuration is provided by Ansible automation. You can rename the connection and filter for your regions. Just edit the file _/home/steampipe/config/oci.spc_ - example:
 
 ```bash
 connection "oci_tenant_kestenholz" {
@@ -357,7 +358,7 @@ connection "oci_tenant_kestenholz" {
 }
 ```
 
-Restart Docker container for Steampipe as OS user root:
+Restart Docker container for Steampipe.io as OS user root to enable the settings:
 
 ```bash
 sudo su -
@@ -367,11 +368,11 @@ sudo su -
 
 ### Steampipe Verification
 
-Here are some commands to verify if Steampipe is working properly and the connections works as expected. Execute as OS user root:
+Verify if Steampipe.io is working properly and the connection works as expected. Execute as OS user _root_:
 
 ```bash
 # docker exec -it steampipe steampipe plugin list
-[root@ci-monitoring ~]# docker exec -it steampipe steampipe plugin list
+
 +--------------------------------------------+---------+-----------------------+
 | Name                                       | Version | Connections           |
 +--------------------------------------------+---------+-----------------------+
@@ -379,12 +380,46 @@ Here are some commands to verify if Steampipe is working properly and the connec
 +--------------------------------------------+---------+-----------------------+
 ```
 
-Note: If the _Connections_ columns is empty, restart as user root the steampipe container again:
+Note: If the _Connections_ columns is empty, restart as user root the steampipe container again and wait a couple of
+seconds before re-execute the statement.
 
 ```bash
 # docker stop steampipe
 # docker start steampipe
 ```
+
+Verify the services are is up and running.
+
+```bash
+# docker exec -it steampipe steampipe service status
+Steampipe service is running:
+
+Database:
+
+  Host(s):            localhost, 127.0.0.1, 172.18.0.2
+  Port:               9193
+  Database:           steampipe
+  User:               steampipe
+  Password:           ********* [use --show-password to reveal]
+  Connection string:  postgres://steampipe@localhost:9193/steampipe
+
+Managing the Steampipe service:
+
+  # Get status of the service
+  steampipe service status
+
+  # View database password for connecting from another machine
+  steampipe service status --show-password
+
+  # Restart the service
+  steampipe service restart
+
+  # Stop the service
+  steampipe service stop
+```
+
+
+Query for any running Compute Instances in your defined region.
 
 ```bash
 # docker exec -it steampipe steampipe query "select display_name,shape,region from oci_core_instance where lifecycle_state='RUNNING';"
@@ -490,3 +525,5 @@ fatal: [192.168.201.57]: FAILED! => {"reason": "couldn't resolve module/action '
 
 Restart installation.
 
+## Notes
+oci monitoring metric-data summarize-metrics-data -c ocid1.tenancy.xxxxxxxxxx --namespace xxxxxxxxxxx --query-text 'BytesToIgw[1440m].sum()'
