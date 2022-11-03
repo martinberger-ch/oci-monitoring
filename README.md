@@ -30,7 +30,6 @@ The Docker containers are started by docker-compose.
 
 During the Ansible playbook execution, a new OS user called_steampipe_ is created.
 
-
 ## Links
 
 - [Steampipe](https://steampipe.io/)
@@ -53,7 +52,7 @@ During the Ansible playbook execution, a new OS user called_steampipe_ is create
 - Internet access for download YUM packages and Ansible Galaxy role
 - OCI CLI configured with instance principal as user _oci_.
 - SELinux set to permissive
-- An OCI User and Group with _inspect all-resources_ and _request.operation='GetConfiguration'_ privileges.
+- An OCI User and Group with _inspect all-resources_ and _request.operation='GetConfiguration'_ privileges - see section below.
 
 ## Oracle Cloud Infrastructure - Create the user for OCI API access - based on OCI CLI
 
@@ -210,7 +209,7 @@ to open these ports in the OCI VCN Security List too to get web access.
 
 ### Reachability Verification
 
-Verify if Grafana is reachable by your workstation - IP: http://<your-custom-image-ip>:3000
+Verify if Grafana is reachable by your workstation - IP: <http://your-custom-image-ip:3000>
 
 ![Grafana Login](images/grafana_login.jpg)
 
@@ -260,7 +259,7 @@ bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scrip
 
 ### Configure OCI CLI
 
-Execute the setup with your user and tenant OCID, create a new API Signing Key Pair. This key is later used in OCI web interface. 
+Execute the setup with your user and tenant OCID, create a new API Signing Key Pair. This key is later used in OCI web interface.
 
 Use these parameters:
 
@@ -418,7 +417,6 @@ Managing the Steampipe service:
   steampipe service stop
 ```
 
-
 Query for any running Compute Instances in your defined region.
 
 ```bash
@@ -526,4 +524,5 @@ fatal: [192.168.201.57]: FAILED! => {"reason": "couldn't resolve module/action '
 Restart installation.
 
 ## Notes
+
 oci monitoring metric-data summarize-metrics-data -c ocid1.tenancy.xxxxxxxxxx --namespace xxxxxxxxxxx --query-text 'BytesToIgw[1440m].sum()'
