@@ -48,7 +48,7 @@ services:
     image: turbot/steampipe
     container_name: steampipe
     command: "service start --foreground"
-   volumes:
+    volumes:
       - type: bind
           source: $HOME/.oci
           target: /home/steampipe/.oci  
