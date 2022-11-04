@@ -28,8 +28,7 @@ The Docker containers are started by docker-compose.
 
 ## New OS User added
 
-During the Ansible playbook execution, a new OS user called_steampipe_ is created. This user is used for the 
-OCI CLI and Steampipe.io configuration.
+During the Ansible playbook execution, a new OS user called_steampipe_ is created. This user is used for the OCI CLI and Steampipe.io configuration.
 
 ## Links
 
@@ -141,12 +140,18 @@ cd oci-monitoring
 
 ### Set private IP for installation process and configure hosts file
 
-Edit hosts file in oci-monitoring subdirectory and change private IP. We use a local connection.
+Edit hosts file in oci-monitoring subdirectory and change private IP. We use a local connection. Get OCI 
+Compute Instance private IP address from instance metadata:
+
+```bash
+curl --silent http://169.254.169.254/opc/v1/vnics/ | grep private | awk -F\" '{print $4}'
+10.0.0.47
+```
 
 ```bash
 # Set host private IP - example 10.0.0.228
 [monitoring]
-10.0.0.228 ansible_user=opc ansible_connection=local ansible_python_interpreter="/usr/bin/env python3" 
+10.0.0.47 ansible_user=opc ansible_connection=local ansible_python_interpreter="/usr/bin/env python3" 
 ```
 
 ### Run _ansible-galaxy collection install -r roles/requirements.yml_
