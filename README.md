@@ -139,32 +139,14 @@ git clone https://github.com/martinberger-ch/oci-monitoring.git
 cd oci-monitoring
 ```
 
-### Transfer SSH key for OS user opc for installation process and configure hosts file
+### Set private IP for installation process and configure hosts file
 
-Copy the instance SSH key to .ssh directory of user _opc_ to the Compite Instance. The private SSH key must removed after the installation as it is a risk to have the private on the cloud instance. But in our case it is required during the the monitoring setup by Ansible for local connections.
-
-Edit hosts file in oci-monitoring subdirectory. Set path to:
-
-- private key of OS user _opc_
-- private IP of the Compute Instance
+Edit hosts file in oci-monitoring subdirectory and change private IP. We use a local connection.
 
 ```bash
-[all:vars]
-ansible_ssh_private_key_file=/home/opc/.ssh/ssh-key-2021-09-22.key
-
+# Set host private IP - example 10.0.0.228
 [monitoring]
-<your_private_IP_here> ansible_user=opc ansible_python_interpreter="/usr/bin/env python3"
-```
-
-Ansible error message when SSH key, SSH key permissions or private IP address is not correct:
-
-```bash
-
-TASK [Gathering Facts] **********************************************************************************
-fatal: [10.0.2.211]: UNREACHABLE! => {"changed": false, "msg": "Failed to connect to the host via ssh: ssh: connect to host 10.0.2.211 port 22: Connection timed out", "unreachable": true}
-
-PLAY RECAP **********************************************************************************************
-10.0.2.211                 : ok=0    changed=0    unreachable=1    failed=0    skipped=0    rescued=0    ignored=0
+10.0.0.228 ansible_user=opc ansible_connection=local ansible_python_interpreter="/usr/bin/env python3" 
 ```
 
 ### Run _ansible-galaxy collection install -r roles/requirements.yml_

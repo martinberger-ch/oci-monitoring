@@ -1,7 +1,3 @@
-# Set path and file to opc private key - example ssh-key-2021-09-22.key
-[all:vars]
-ansible_ssh_private_key_file=/home/opc/.ssh/ssh-key-2021-09-22.key
-
-# Set host private IP - example 10.0.2.211
-[monitoring] 
-10.0.2.211 ansible_user=opc ansible_python_interpreter="/usr/bin/env python3"
+# Set host private IP - example 10.0.0.228
+[monitoring]
+10.0.0.228 ansible_user=opc ansible_connection=local ansible_python_interpreter="/usr/bin/env python3" 
