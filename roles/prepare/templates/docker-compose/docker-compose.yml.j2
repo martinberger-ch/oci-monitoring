@@ -50,23 +50,23 @@ services:
     command: "service start --foreground"
     volumes:
       - type: bind
-          source: $HOME/.oci
-          target: /home/steampipe/.oci  
+        source: $HOME/.oci
+        target: /home/steampipe/.oci  
       - type: bind
-          source: $HOME/sp/config
-          target: /home/steampipe/.steampipe/config
+        source: $HOME/sp/config
+        target: /home/steampipe/.steampipe/config
       - type: volume
-          source: steampipe_data
-          target: /home/steampipe/.steampipe/db/14.2.0/data 
+        source: steampipe_data
+        target: /home/steampipe/.steampipe/db/14.2.0/data 
       - type: volume
-          source: steampipe_internal
-          target: /home/steampipe/.steampipe/internal
+        source: steampipe_internal
+        target: /home/steampipe/.steampipe/internal
       - type: volume
-          source: steampipe_logs
-          target: /home/steampipe/.steampipe/logs
+        source: steampipe_logs
+        target: /home/steampipe/.steampipe/logs
       - type: volume
-          source: steampipe_plugins
-          target: /home/steampipe/.steampipe/plugins
+        source: steampipe_plugins
+        target: /home/steampipe/.steampipe/plugins
     ports:
       - "9193:9193"
     restart: unless-stopped
