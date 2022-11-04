@@ -28,7 +28,8 @@ The Docker containers are started by docker-compose.
 
 ## New OS User added
 
-During the Ansible playbook execution, a new OS user called_steampipe_ is created.
+During the Ansible playbook execution, a new OS user called_steampipe_ is created. This user is used for the 
+OCI CLI and Steampipe.io configuration.
 
 ## Links
 
@@ -37,21 +38,19 @@ During the Ansible playbook execution, a new OS user called_steampipe_ is create
 - [Grafana](https://grafana.com/)
 - [OCI CLI](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/cliconcepts.htm)
 
-## Compute Node Requirements
+## Compute Node Setup
 
 - VCN with internet access by Internet Gateway or NAT Gateway
 - OL 8 Compute Instance up and running
 - SSH keys user _opc_ related
-- OS access as user _opc_
-
-## Prerequisites
-
-- opc SSH private key available on playbook execution host
+- OS access as user _opc_ and SSH private key available for Ansible playbook execution
 - /etc/hosts configured
 - Ansible and Git configured
-- Internet access for download YUM packages and Ansible Galaxy role
-- OCI CLI configured with instance principal as user _oci_.
-- SELinux set to permissive
+
+![OCI Compute Image](images/oci_compute_instance.jpg)
+
+## Oracle Cloud Infrastructure IAM Requirements
+
 - An OCI User and Group with _inspect all-resources_ and _request.operation='GetConfiguration'_ privileges - see section below.
 
 ## Oracle Cloud Infrastructure - Create the user for OCI API access - based on OCI CLI
@@ -114,7 +113,7 @@ Menu -> Governance & Administration -> Tenancy Details.
 
 ## OS
 
-### Required YUM Packages
+### Install YUM Packages for Ansible and Git
 
 As user opc:
 
@@ -122,11 +121,11 @@ As user opc:
 sudo dnf -y install ansible git
 ```
 
-## Installation and Configuration
+## Monitoring Installation and Configuration
 
-### Clone the repository to a local folder
+### Clone the GitHub repository to a local folder
 
-As user _opc_, clpone the repository.
+As user _opc_, clone the repository.
 
 ```bash
 mkdir git
@@ -142,7 +141,7 @@ cd oci-monitoring
 
 ### Transfer SSH key for OS user opc for installation process and configure hosts file
 
-Copy the instance SSH key to .ssh directory of user _opc_ where you run ansible on the Compute Instance. Remove the private SSH key after the installation as it is a risk to have the private on the cloud instance. But in our case it is required during the the monitoring setup by Ansible.
+Copy the instance SSH key to .ssh directory of user _opc_ to the Compite Instance. The private SSH key must removed after the installation as it is a risk to have the private on the cloud instance. But in our case it is required during the the monitoring setup by Ansible for local connections.
 
 Edit hosts file in oci-monitoring subdirectory. Set path to:
 
