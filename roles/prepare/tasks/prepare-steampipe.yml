@@ -28,6 +28,7 @@
     - /home/steampipe/sql
     - /home/steampipe/py
     - /home/steampipe/tmp
+    - /home/steampipe/sp/config
   tags:
     - steampipe
     - sql
