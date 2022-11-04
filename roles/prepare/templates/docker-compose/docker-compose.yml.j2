@@ -50,10 +50,10 @@ services:
     command: "service start --foreground"
     volumes:
       - type: bind
-        source: $HOME/.oci
+        source: /home/steampipe/.oci
         target: /home/steampipe/.oci  
       - type: bind
-        source: $HOME/sp/config
+        source: /home/steampipe/sp/config
         target: /home/steampipe/.steampipe/config
       - type: volume
         source: steampipe_data
