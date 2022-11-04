@@ -59,15 +59,3 @@
     owner: steampipe
     group: steampipe
   tags: steampipe
-
-- name: Copy OCI configuration files
-  copy:
-    src: "steampipe/{{item}}"
-    dest: "/home/steampipe/.oci"
-    owner: steampipe
-    group: steampipe
-    mode: 0644
-  loop:
-    - config
-  tags:
-    - steampipe

@@ -198,7 +198,7 @@ Verify if Grafana is reachable by your workstation - IP: <http://your-custom-ima
 
 <https://docs.oracle.com/en/operating-systems/oracle-linux/8/python/>
 
-As OS user root
+As OS user root:
 
 ```bash
 # dnf install -y python39
