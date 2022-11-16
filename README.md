@@ -45,7 +45,7 @@ During the Ansible playbook execution, a new OS user called_steampipe_ is create
 - OS access as user _opc_ and SSH private key available for Ansible playbook execution
 - /etc/hosts configured
 - Ansible and Git configured
-- SELinux disabled in /etc/selinux/config
+- SELinux set to PERMISSIVE in /etc/selinux/config
 
   
 
@@ -121,40 +121,11 @@ Login as OS user _opc_ and change to _root_.
 sudo su -
 ```
 
-### Install YUM Packages for Ansible and Git
+### Update the OS and install YUM Packages for Ansible and Git as _root_
 
 ```bash
 dnf upgrade
 dnf install -y ansible git
-```
-
-### Python Update
-
-<https://docs.oracle.com/en/operating-systems/oracle-linux/8/python/>
-
-Install Python 3.9 and set the alias.
-
-```bash
-# dnf install -y python39
-```
-
-```bash
-# alternatives --config python3
-
-There are 2 programs which provide 'python3'.
-
-  Selection    Command
------------------------------------------------
-*+ 1           /usr/bin/python3.6
-   2           /usr/bin/python3.9
-
-Enter to keep the current selection[+], or type selection number: 2
-
-```
-
-```bash
-# python -V
-Python 3.9.13
 ```
 
 ## Monitoring Installation and Configuration
@@ -190,7 +161,7 @@ curl --silent http://169.254.169.254/opc/v1/vnics/ | grep private | awk -F\" '{p
 ```bash
 # Set host private IP - example 10.0.0.228
 [monitoring]
-10.0.0.47 ansible_user=opc ansible_connection=local ansible_python_interpreter="/usr/bin/python2" 
+10.0.0.47 ansible_user=opc ansible_connection=local
 ```
 
 ### Run _ansible-galaxy collection install -r roles/requirements.yml_
