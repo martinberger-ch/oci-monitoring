@@ -225,7 +225,7 @@ bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scrip
 ```
 
 ```bash
- oci --latest-version
+oci --latest-version
 ```
 
 ### Configure OCI CLI
@@ -306,12 +306,21 @@ cat /home/steampipe/.oci/oci_api_key_public.pem
 
 ![API Key](images/oci_api_key.jpg)
 
-Verify the functionality of the OCI CLI - get Oracle Cloud Infrastructure Object Storage namespace name:
+Verify the functionality of the OCI CLI - get Oracle Cloud Infrastructure list of subscribed regions:
 
 ```bash
-oci os ns get
+oci iam region-subscription list
+
 {
-  "data": "<your-namespace-here>"
+  "data": [
+    {
+      "is-home-region": true,
+      "region-key": "ZRH",
+      "region-name": "eu-zurich-1",
+      "status": "READY"
+    }
+  ]
+
 }
 ```
 
@@ -395,75 +404,50 @@ Example query for any running Compute Instances in your defined region.
 
 ```bash
 # docker exec -it steampipe steampipe query "select display_name,shape,region from oci_core_instance where lifecycle_state='RUNNING';"
-+-----------------------------------+------------------------+----------------+
-| display_name                      | shape                  | region         |
-+-----------------------------------+------------------------+----------------+
-| Instance-DB-1                     | VM.Standard1.2         | eu-frankfurt-1 |
-| Instance-AS-1                     | VM.Standard1.1         | eu-frankfurt-1 |
-+-----------------------------------+------------------------+----------------+
++-----------------------+---------------------+-------------+
+| display_name          | shape               | region      |
++-----------------------+---------------------+-------------+
+| openvpn_access_server | VM.Standard.E2.1    | eu-zurich-1 |
+| ci-automation-manager | VM.Standard.E4.Flex | eu-zurich-1 |
+| ci-steampipe-v14      | VM.Standard.E4.Flex | eu-zurich-1 |
++-----------------------+---------------------+-------------+
 ```
 
 Example query for your home region:
 
 ```bash
 # docker exec -it steampipe steampipe query "select key,title,status from oci_region where is_home_region=true;"
-+-----+----------------+--------+
-| key | title          | status |
-+-----+----------------+--------+
-| FRA | eu-frankfurt-1 | READY  |
-+-----+----------------+--------+
++-----+-------------+--------+
+| key | title       | status |
++-----+-------------+--------+
+| ZRH | eu-zurich-1 | READY  |
++-----+-------------+--------+
+```
+
+Example query for MFA verification:
+
+```bash
+# docker exec -it steampipe steampipe query "select name, id, is_mfa_activated from oci_identity_user;"
++-----------------+------------------------+------------------+
+| name            | id                     | is_mfa_activated |
++-----------------+------------------------+------------------+
+| homer_simpson   | ocid1.user.oc1.aaaa... | false            |
+| lisa_simpson    | ocid1.user.oc1.aaaa... | true             |
+| ned_flanders    | ocid1.user.oc1.aaaa... | false            |
+| nelson_muntz    | ocid1.user.oc1.aaaa... | false            |
++-----------------+------------------------+------------------+
 ```
 
 Steampipe is now ready to gather data from the Oracle Cloud Infrastructure Account.
 
 ## Python Example Scripts
 
-In subdirectory of new add OS user steampipe _/home/steampipe/py_ there are two basic examples how to get the data from Steampipe PostgreSQL service in Python3 and push them to the Prometheus Pushgateway. Feel free to adapt the queries and files. You can verify the pushed data in browser by URL "http://your-public-ip:9091". If the port is not reachable, check your OCI Security List Ingress settings.
+In subdirectory of new add OS user steampipe _/home/steampipe/py_ there are two basic examples with pre-configured PostgreSQL connect string. There you can see how to get the data from Steampipe PostgreSQL service in Python3 and push them to the Prometheus Pushgateway. Feel free to adapt the queries and files. You can verify the pushed data in browser by URL "http://your-public-ip:9091". If the port is not reachable, check your OCI Security List Ingress settings.
 
-| Script                                 | Purpose                                              |   |   |   |
-|----------------------------------------|------------------------------------------------------|---|---|---|
-| pgsql-query-bv-zurich.py               | Summary of Block Volume in OCI Region Zurich         |   |   |   |
-| pgsql-query-ci-running-zurich.py       | Summary of running Instances in OCI Region Zurich    |   |   |   |
-
-
-Before you are able to connect, get as OS user root the Steampipe PostgreSQL connection details to get the connect string for the Python Scripts.
-
-```bash
-# docker exec -it steampipe steampipe service status --show-password
-Steampipe service is running:
-
-Database:
-
-  Host(s):            localhost, 127.0.0.1, 172.18.0.4
-  Port:               9193
-  Database:           steampipe
-  User:               steampipe
-  Password:           94d1_4249_874a
-  Connection string:  postgres://steampipe:94d1_4249_874a@localhost:9193/steampipe
-
-Managing the Steampipe service:
-
-  # Get status of the service
-  steampipe service status
-
-  # View database password for connecting from another machine
-  steampipe service status --show-password
-
-  # Restart the service
-  steampipe service restart
-
-  # Stop the service
-  steampipe service stop
-```
-
-Replace the line f'' in the scripts with your connect string.
-
-```bash
-# old:
-uri = f''
-# new:
-uri = f'postgres://steampipe:94d1_4249_874a@localhost:9193/steampipe' 
-```
+| Script                                    | Purpose                                              |   |   |   |
+|-------------------------------------------|------------------------------------------------------|---|---|---|
+| pgsql-example-block-volume-summary.py     | Summary of Block Volume in OCI Region Zurich         |   |   |   |
+| pgsql-example-compute-instance-running.py | Summary of available Instances in OCI Region Zurich  |   |   |   |
 
 Run the script as OS user _steampipe_, example.
 
@@ -471,26 +455,26 @@ Run the script as OS user _steampipe_, example.
 $ python3 pgsql-query-ci-running-zurich.py
 Connected to DB.
 Query ran
-0
+3
 Connection closed.
 ```
 
-If the result is pushed as a metric, can be verified on the Pushgateway homepage.
+The result is pushed as a metric, this can be verified on the Pushgateway homepage.
 
 ## Prometheus Push Gateway
 
-According the Python script, new data is loaded in Prometheus Push Gateway to port 9091 and scraped by Prometheus port 9090. Example for Protheus Gateway where data is loaded by jobs _oci_blockvolume_/_oci_compute_.
+According the Python script, new data is loaded in Prometheus Push Gateway to port 9091 and scraped by Prometheus port 9090. Example for Protheus Gateway where data is loaded by job _oci_compute_.
 
 ![OCI Prometheus Push Gateway 01](images/oci_pushgateway_01.png)
 
 ## Grafana
 
-Grafana is reachable by address _your-machine-ip:3000_.
+Grafana is reachable by "http://your-public-ip:3000".
 
 - Username: admin
 - Password: Welcome1
 
-The Prometheus data source and a basic dashboard are deployed during the Grafana Docker setup process. Example for dashboard _OCI Demo - eu-zurich-1_:
+The Prometheus data source and a basic dashboard are configured during the Grafana Docker setup process. Example for dashboard _OCI Demo - eu-zurich-1_:
 
 Prometheus data source:
 ![OCI Grafana 01](images/oci_grafana_01.png)
@@ -513,13 +497,21 @@ To verify if Steampipe is running properly:
 
 ### Steampipe Access Logs
 
-The foreign data wrapper logs are stored locally - not in the Docker container - in the directory _/home/steampipe/logs_:
+The foreign data wrapper logs are stored locally on the Docker volume:
 
 ```bash
-drwx------. 11 steampipe steampipe     173 Aug  9 17:18 ..
--rw-------.  1      9193 root       756701 Aug  9 19:57 database-2021-08-09.log
-drwxrwxr-x.  2 steampipe root           68 Aug 10 02:00 .
--rw-------.  1      9193 root      3411203 Aug 10 07:19 database-2021-08-10.log
+[root@ci-steampipe-v14 _data]# pwd
+/var/lib/docker/volumes/docker_steampipe_logs/_data
+
+[root@ci-steampipe-v14 _data]# ls -latr
+total 24
+-rw-r--r--. 1 steampipe root     0 Nov 10 22:39 plugin-2022-11-10.log
+-rw-------. 1 steampipe root  6114 Nov 10 22:39 database-2022-11-10.log
+drwx-----x. 3 root      root    19 Nov 16 20:18 ..
+-rw-r--r--. 1 steampipe root     0 Nov 16 20:19 plugin-2022-11-16.log
+drwxr-xr-x. 2 steampipe root   126 Nov 16 20:19 .
+-rw-------. 1 steampipe root 16177 Nov 16 20:34 database-2022-11-16.log
+
 ```
 
 ### Steampipe Restart
