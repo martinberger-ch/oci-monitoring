@@ -1,3 +1,3 @@
 # Set host private IP - example 10.0.0.114
 [monitoring]
-10.0.0.114 ansible_user=opc ansible_connection=local ansible_python_interpreter="/usr/bin/python3" 
+10.0.0.114 ansible_user=opc ansible_connection=local ansible_python_interpreter="/usr/bin/python2" 

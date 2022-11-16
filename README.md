@@ -3,7 +3,7 @@
 This guide shows you how to install and setup a nice monitoring solution based on Steampipe.io, Docker and Co. Steampipe.io
 is a framework, where you can query Oracle Cloud Infrastructure resources by SQL language.
 
-This guide is tested in OL 7.9 running on Oracle Cloud Infrastructure.
+This guide is tested in OL 8 running on Oracle Cloud Infrastructure.
 
 ## How it works
 
@@ -40,11 +40,12 @@ During the Ansible playbook execution, a new OS user called_steampipe_ is create
 ## Compute Node Setup
 
 - VCN with internet access by Internet Gateway or NAT Gateway
-- OL 7.9 Compute Instance up and running
+- OL 8 Compute Instance up and running
 - SSH keys user _opc_ related
 - OS access as user _opc_ and SSH private key available for Ansible playbook execution
 - /etc/hosts configured
 - Ansible and Git configured
+- SELinux disabled in /etc/selinux/config
 
   
 
@@ -112,24 +113,29 @@ Menu -> Governance & Administration -> Tenancy Details.
 
 ![OCI Policy](images/oci_tenancy_ocid.jpg)
 
-## OS
+## OS Packages
+
+Login as OS user _opc_ and change to _root_.
+
+```bash
+sudo su -
+```
 
 ### Install YUM Packages for Ansible and Git
 
-As user opc:
-
 ```bash
-sudo dnf -y install ansible git
+dnf upgrade
+dnf install -y ansible git
 ```
 
 ### Python Update
 
 <https://docs.oracle.com/en/operating-systems/oracle-linux/8/python/>
 
-As OS user root set Python 3.9 as version for alias python3.
+Install Python 3.9 and set the alias.
 
 ```bash
-# dnf install -y python3
+# dnf install -y python39
 ```
 
 ```bash
@@ -148,7 +154,7 @@ Enter to keep the current selection[+], or type selection number: 2
 
 ```bash
 # python -V
-Python 3.9.7
+Python 3.9.13
 ```
 
 ## Monitoring Installation and Configuration
@@ -184,7 +190,7 @@ curl --silent http://169.254.169.254/opc/v1/vnics/ | grep private | awk -F\" '{p
 ```bash
 # Set host private IP - example 10.0.0.228
 [monitoring]
-10.0.0.47 ansible_user=opc ansible_connection=local ansible_python_interpreter="/usr/bin/python3" 
+10.0.0.47 ansible_user=opc ansible_connection=local ansible_python_interpreter="/usr/bin/python2" 
 ```
 
 ### Run _ansible-galaxy collection install -r roles/requirements.yml_
