@@ -11,7 +11,6 @@
     name: steampipe
     comment: Steampipe User
     group: steampipe
-    groups: docker
     uid: 9193
   tags: steampipe
 

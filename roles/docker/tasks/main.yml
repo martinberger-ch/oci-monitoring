@@ -42,3 +42,9 @@
     ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
   ignore_errors: yes
 
+
+- name: Adding user steampipe to group docker  
+  user: name=steampipe
+        group=docker
+        groups=sudo
+        append=yes
