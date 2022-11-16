@@ -1,26 +1,19 @@
 # tasks file for config-steampipe
-
 - name: Install OCI Plugin
   community.docker.docker_container_exec:
     container: steampipe
     command: /bin/bash -c "steampipe plugin install oci"
-  tags: steampipe
+
 
 - name: Get PG Connect String
-  shell: docker exec -it steampipe steampipe service status --show-password | grep Connection | awk -F "string:" '{print $2}' | sed 's/.* //'
+  shell: docker exec --tty steampipe steampipe service status --show-password | grep postgres
   args:
     executable: /bin/bash
-  register: steampipe_connect
-  tags:
-    - steampipe
-
-- debug: msg="{{ steampipe_connect.stdout }}"
-  tags:
-    - steampipe
+  register: steampipe_connect_full
 
 - name: Setting facts so that they will be persisted in the fact cache
   set_fact:
-    steampipe_connect_string: "{{ steampipe_connect.stdout }}"
+          steampipe_connect_string: "{{ steampipe_connect_full.stdout[22:90] }}"
   tags: copy
 
 - debug: msg="{{steampipe_connect_string}}"
