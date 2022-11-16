@@ -11,6 +11,8 @@
     name: steampipe
     comment: Steampipe User
     group: steampipe
+    groups: docker
+    uid: 9193
   tags: steampipe
 
 - name: create directory if they don't exist
@@ -21,14 +23,8 @@
     owner: steampipe
   loop:
     - /home/steampipe/sp
-    - /home/steampipe/logs
-    - /home/steampipe/config
-    - /home/steampipe/plugins
     - /home/steampipe/.oci
-    - /home/steampipe/sql
-    - /home/steampipe/py
-    - /home/steampipe/tmp
-    - /home/steampipe/sp/config
+    - /home/steampipe/.steampipe
   tags:
     - steampipe
     - sql

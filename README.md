@@ -210,13 +210,6 @@ Verify if Grafana is reachable by your workstation - IP: <http://your-custom-ima
 ![Grafana Login](images/grafana_login.jpg)
 
 
-### Steampipe
-Add OS user steampipe.
-
-```bash
-useradd steampipe -G docker --uid 9193
-sudo su - steampipe
-```
 
 ## OCI CLI
 
