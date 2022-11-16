@@ -26,11 +26,12 @@
     - /home/steampipe/logs
     - /home/steampipe/config
     - /home/steampipe/plugins
-    - /home/steampipe/.oci
     - /home/steampipe/sql
     - /home/steampipe/py
     - /home/steampipe/tmp
     - /home/steampipe/sp/config
+    - /home/steampipe/.oci
+    - /home/steampipe/.steampipe
   tags:
     - steampipe
     - sql

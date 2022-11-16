@@ -7,7 +7,7 @@
   tags: steampipe
 
 - name: Get PG Connect String
-  shell: docker exec -it steampipe steampipe service status | grep postgres | awk '{ sub(/^[ \t]+/, ""); print }'
+  shell: docker exec -it steampipe steampipe service status --show-password | grep Connection | awk -F "string:" '{print $2}' | sed 's/.* //'
   args:
     executable: /bin/bash
   register: steampipe_connect
@@ -15,19 +15,6 @@
     - steampipe
 
 - debug: msg="{{ steampipe_connect.stdout }}"
-  tags:
-    - steampipe
-
-- name: Copy SQL files
-  copy:
-    src: "{{item}}"
-    dest: "/home/steampipe/sql"
-    owner: steampipe
-    group: steampipe
-    mode: 0644
-  loop:
-    - steampipe/oci_bv_eu_frankfurt_1.sql
-    - steampipe/oci_bv_eu_zurich_1.sql
   tags:
     - steampipe
 
@@ -44,7 +31,7 @@
     transfer_var: "{{ steampipe_connect_string }}"
   tags: copy
 
-- name: Remove file (delete file)
+- name: Remove default file (delete file)
   ansible.builtin.file:
     path: /home/steampipe/config/oci.spc
     state: absent

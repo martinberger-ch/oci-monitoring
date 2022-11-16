@@ -217,7 +217,7 @@ As OS user _steampipe_, install the OCI CLI. Answer all questions with _enter_.
 
 ### Install OCI CLI
 
-Install and configure the OCI CLI as OS user _opc_.
+Install and configure the OCI CLI as OS user _opc_. Press Enter when asked for directory, scripts, modify profile etc.
 
 ```bash
 sudo su - steampipe
@@ -234,8 +234,8 @@ Execute the setup with your user and tenant OCID, create a new API Signing Key P
 
 Use these parameters:
 
-- OCID of created user _oci_user_readonly_
-- OCID of the tenancy
+- OCID of created user _oci_user_readonly_ from above
+- OCID of the tenancy from above
 - Your preferred region - e.g.  _eu-zurich-1_.
 - Config location: /home/steampipe/.oci/config
 
@@ -244,7 +244,7 @@ Let the setup tool write it into the OCI config file.
 
 ```bash
 $ oci setup config
-    This command provides a walkthrough of creating a valid CLI config file.
+    This command provides a walkthrough of creating a valid CLI config file. Press Y=yes when asked for a new API Signing RSA key pair.
 
     The following links explain where to find the information required by this
     script:
@@ -317,10 +317,10 @@ oci os ns get
 
 ### File /home/steampipe/config/oci.spc - Steampipe Region Filter
 
-The configuration is provided by Ansible automation. You can rename the connection and filter for your regions. Just edit the file _/home/steampipe/config/oci.spc_ - example:
+The configuration is provided by Ansible automation and corresponds with file created during OCI CLI setup. You can rename the connection and filter for your regions. Just edit the file _/home/steampipe/config/oci.spc_ - example:
 
 ```bash
-connection "oci_tenant_kestenholz" {
+connection "oci" {
   plugin                = "oci"
   config_file_profile   = "DEFAULT"          # Name of the profile
   config_path           = "~/.oci/config"    # Path to config file
@@ -328,7 +328,7 @@ connection "oci_tenant_kestenholz" {
 }
 ```
 
-Restart Docker container for Steampipe.io as OS user root to enable the settings:
+Restart Docker container for Steampipe.io as OS user root to re-enable the settings:
 
 ```bash
 sudo su -
@@ -344,10 +344,11 @@ Verify if Steampipe.io is working properly and the connection works as expected.
 # docker exec -it steampipe steampipe plugin list
 
 +--------------------------------------------+---------+-------------+
-| Name                                       | Version | Connections |
+| Installed Plugin                           | Version | Connections |
 +--------------------------------------------+---------+-------------+
-| hub.steampipe.io/plugins/turbot/oci@latest | 0.17.1  | oci         |
+| hub.steampipe.io/plugins/turbot/oci@latest | 0.17.2  | oci         |
 +--------------------------------------------+---------+-------------+
+
 
 ```
 
@@ -367,7 +368,7 @@ Steampipe service is running:
 
 Database:
 
-  Host(s):            localhost, 127.0.0.1, 172.18.0.2
+  Host(s):            localhost, 127.0.0.1, 172.18.0.4
   Port:               9193
   Database:           steampipe
   User:               steampipe
@@ -387,9 +388,10 @@ Managing the Steampipe service:
 
   # Stop the service
   steampipe service stop
+
 ```
 
-Query for any running Compute Instances in your defined region.
+Example query for any running Compute Instances in your defined region.
 
 ```bash
 # docker exec -it steampipe steampipe query "select display_name,shape,region from oci_core_instance where lifecycle_state='RUNNING';"
@@ -401,6 +403,8 @@ Query for any running Compute Instances in your defined region.
 +-----------------------------------+------------------------+----------------+
 ```
 
+Example query for your home region:
+
 ```bash
 # docker exec -it steampipe steampipe query "select key,title,status from oci_region where is_home_region=true;"
 +-----+----------------+--------+
@@ -410,23 +414,68 @@ Query for any running Compute Instances in your defined region.
 +-----+----------------+--------+
 ```
 
+Steampipe is now ready to gather data from the Oracle Cloud Infrastructure Account.
+
 ## Python Example Scripts
 
-In subdirectory of new add OS user steampipe _/home/steampipe/py_ there are two basic examples how to get the data from Steampipe PostgreSQL service in Python3. Feel free to adapt the queries and files. Returned values are pushed to Prometheus Gateway to port 9091 for further usage.
+In subdirectory of new add OS user steampipe _/home/steampipe/py_ there are two basic examples how to get the data from Steampipe PostgreSQL service in Python3 and push them to the Prometheus Pushgateway. Feel free to adapt the queries and files. You can verify the pushed data in browser by URL "http://your-public-ip:9091". If the port is not reachable, check your OCI Security List Ingress settings.
 
 | Script                                 | Purpose                                              |   |   |   |
 |----------------------------------------|------------------------------------------------------|---|---|---|
 | pgsql-query-bv-zurich.py               | Summary of Block Volume in OCI Region Zurich         |   |   |   |
 | pgsql-query-ci-running-zurich.py       | Summary of running Instances in OCI Region Zurich    |   |   |   |
 
-Attention: Actually you have to restart the Docker container before executing Python3 according this error - I am investigating on it.
 
-Manual execution and upload of the query result:
+Before you are able to connect, get as OS user root the Steampipe PostgreSQL connection details to get the connect string for the Python Scripts.
 
 ```bash
-# python3 pgsql-query-ci-running-zurich.py
-# python3 pgsql-query-bv-zurich.py
+# docker exec -it steampipe steampipe service status --show-password
+Steampipe service is running:
+
+Database:
+
+  Host(s):            localhost, 127.0.0.1, 172.18.0.4
+  Port:               9193
+  Database:           steampipe
+  User:               steampipe
+  Password:           94d1_4249_874a
+  Connection string:  postgres://steampipe:94d1_4249_874a@localhost:9193/steampipe
+
+Managing the Steampipe service:
+
+  # Get status of the service
+  steampipe service status
+
+  # View database password for connecting from another machine
+  steampipe service status --show-password
+
+  # Restart the service
+  steampipe service restart
+
+  # Stop the service
+  steampipe service stop
 ```
+
+Replace the line f'' in the scripts with your connect string.
+
+```bash
+# old:
+uri = f''
+# new:
+uri = f'postgres://steampipe:94d1_4249_874a@localhost:9193/steampipe' 
+```
+
+Run the script as OS user _steampipe_, example.
+
+```bash
+$ python3 pgsql-query-ci-running-zurich.py
+Connected to DB.
+Query ran
+0
+Connection closed.
+```
+
+If the result is pushed as a metric, can be verified on the Pushgateway homepage.
 
 ## Prometheus Push Gateway
 
