@@ -3,7 +3,7 @@
 This guide shows you how to install and setup a nice monitoring solution based on Steampipe.io, Docker and Co. Steampipe.io
 is a framework, where you can query Oracle Cloud Infrastructure resources by SQL language.
 
-This guide is tested in OL8 running on Oracle Cloud Infrastructure.
+This guide is tested in OL 7.9 running on Oracle Cloud Infrastructure.
 
 ## How it works
 
@@ -40,11 +40,13 @@ During the Ansible playbook execution, a new OS user called_steampipe_ is create
 ## Compute Node Setup
 
 - VCN with internet access by Internet Gateway or NAT Gateway
-- OL 8 Compute Instance up and running
+- OL 7.9 Compute Instance up and running
 - SSH keys user _opc_ related
 - OS access as user _opc_ and SSH private key available for Ansible playbook execution
 - /etc/hosts configured
 - Ansible and Git configured
+
+  
 
 ![OCI Compute Image](images/oci_compute_instance.jpg)
 
@@ -120,6 +122,35 @@ As user opc:
 sudo dnf -y install ansible git
 ```
 
+### Python Update
+
+<https://docs.oracle.com/en/operating-systems/oracle-linux/8/python/>
+
+As OS user root set Python 3.9 as version for alias python3.
+
+```bash
+# dnf install -y python3
+```
+
+```bash
+# alternatives --config python3
+
+There are 2 programs which provide 'python3'.
+
+  Selection    Command
+-----------------------------------------------
+*+ 1           /usr/bin/python3.6
+   2           /usr/bin/python3.9
+
+Enter to keep the current selection[+], or type selection number: 2
+
+```
+
+```bash
+# python -V
+Python 3.9.7
+```
+
 ## Monitoring Installation and Configuration
 
 ### Clone the GitHub repository to a local folder
@@ -138,6 +169,8 @@ git clone https://github.com/martinberger-ch/oci-monitoring.git
 cd oci-monitoring
 ```
 
+
+
 ### Set private IP for installation process and configure hosts file
 
 Edit hosts file in oci-monitoring subdirectory and change private IP. We use a local connection. Get OCI 
@@ -151,12 +184,12 @@ curl --silent http://169.254.169.254/opc/v1/vnics/ | grep private | awk -F\" '{p
 ```bash
 # Set host private IP - example 10.0.0.228
 [monitoring]
-10.0.0.47 ansible_user=opc ansible_connection=local ansible_python_interpreter="/usr/bin/env python3" 
+10.0.0.47 ansible_user=opc ansible_connection=local ansible_python_interpreter="/usr/bin/python3" 
 ```
 
 ### Run _ansible-galaxy collection install -r roles/requirements.yml_
 
-Installs the community docker module for Ansible. User is _root_.
+Installs the community docker module for Ansible. User is _opc_.
 
 ```bash
 # ansible-galaxy collection install -r roles/requirements.yml
@@ -164,7 +197,7 @@ Installs the community docker module for Ansible. User is _root_.
 
 ### Run _ansible-playbook install.yml_
 
-Creates users and directories, installs required software and configures Docker containers.
+Creates users and directories, installs required software and configures Docker containers. User is _opc_.
 
 ```bash
 # ansible-playbook install.yml
@@ -199,40 +232,18 @@ Verify if Grafana is reachable by your workstation - IP: <http://your-custom-ima
 
 ![Grafana Login](images/grafana_login.jpg)
 
-## Python Update
 
-<https://docs.oracle.com/en/operating-systems/oracle-linux/8/python/>
-
-As OS user root:
+### Steampipe
+Add OS user steampipe.
 
 ```bash
-# dnf install -y python39
+useradd steampipe -G docker --uid 9193
+sudo su - steampipe
 ```
-
-```bash
-# alternatives --config python3
-
-There are 2 programs which provide 'python3'.
-
-  Selection    Command
------------------------------------------------
-*+ 1           /usr/bin/python3.6
-   2           /usr/bin/python3.9
-
-Enter to keep the current selection[+], or type selection number: 2
-
-```
-
-```bash
-# python -V
-Python 3.9.7
-```
-
-## Steampipe
-
-As OS user _steampipe_, install the OCI CLI. Answer all questions with _enter_.
 
 ## OCI CLI
+
+As OS user _steampipe_, install the OCI CLI. Answer all questions with _enter_.
 
 ### Install OCI CLI
 
@@ -241,6 +252,10 @@ Install and configure the OCI CLI as OS user _opc_.
 ```bash
 sudo su - steampipe
 bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)"
+```
+
+```bash
+ oci --latest-version
 ```
 
 ### Configure OCI CLI
@@ -358,11 +373,12 @@ Verify if Steampipe.io is working properly and the connection works as expected.
 ```bash
 # docker exec -it steampipe steampipe plugin list
 
-+--------------------------------------------+---------+-----------------------+
-| Name                                       | Version | Connections           |
-+--------------------------------------------+---------+-----------------------+
-| hub.steampipe.io/plugins/turbot/oci@latest | 0.17.1  | oci_tenant_kestenholz |
-+--------------------------------------------+---------+-----------------------+
++--------------------------------------------+---------+-------------+
+| Name                                       | Version | Connections |
++--------------------------------------------+---------+-------------+
+| hub.steampipe.io/plugins/turbot/oci@latest | 0.17.1  | oci         |
++--------------------------------------------+---------+-------------+
+
 ```
 
 Note: If the _Connections_ columns is empty, restart as user root the steampipe container again and wait a couple of
