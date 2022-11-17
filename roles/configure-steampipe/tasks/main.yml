@@ -1,4 +1,24 @@
-# tasks file for config-steampipe
+# ---------------------------------------------------------------------------
+# Name.......: configure-steampipe/tasks/main.yml
+# Author.....: Martin Berger (mbg) martin.x.berger@accenture.com
+# Editor.....: Martin Berger
+# Date.......: 2022.11.17
+# Revision...:  
+# Purpose....: Prepare directories and files for Prometheus
+# Notes......: 
+# Reference..: 
+# License....: Apache License Version 2.0, January 2004 as shown
+#              at http://www.apache.org/licenses/
+# ---------------------------------------------------------------------------
+
+---
+
+# - Configure Steampipe -------------------------------------------------------
+# - Install OCI Plugin
+# - Get PG Connct String vom Steampipe Configuration
+# - Copy oci.spc configuration file
+# - Copy Pythion example scripts 
+# ---------------------------------------------------------------------------
 - name: Install OCI Plugin
   community.docker.docker_container_exec:
     container: steampipe
@@ -41,7 +61,6 @@
     owner: steampipe
     group: steampipe
   tags: configure-steampipe
-
 
 - debug: msg="{{ hostvars['dummy_host']['transfer_var'] }}"
   tags: configure-steampipe

@@ -1,4 +1,22 @@
-# tasks file for steampipe
+# ---------------------------------------------------------------------------
+# Name.......: prepare-steampipe/tasks/main.yml
+# Author.....: Martin Berger (mbg) martin.x.berger@accenture.com
+# Editor.....: Martin Berger
+# Date.......: 2022.11.17
+# Revision...:  
+# Purpose....: Prepare directories and files for Prometheus
+# Notes......: 
+# Reference..: 
+# License....: Apache License Version 2.0, January 2004 as shown
+#              at http://www.apache.org/licenses/
+# ---------------------------------------------------------------------------
+
+---
+
+# - Prepare Steampipe --------------------------------------------------------
+# - Verify user and group
+# - Create directories
+# ---------------------------------------------------------------------------
 
 - name: Ensure group 'steampipe' exists
   group:

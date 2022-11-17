@@ -1,5 +1,23 @@
+# ---------------------------------------------------------------------------
+# Name.......: configure-pushgateway/tasks/main.yml
+# Author.....: Martin Berger (mbg) martin.x.berger@accenture.com
+# Editor.....: Martin Berger
+# Date.......: 2022.11.17
+# Revision...:  
+# Purpose....: Prepare directories and files for Pushgateway
+# Notes......: 
+# Reference..: 
+# License....: Apache License Version 2.0, January 2004 as shown
+#              at http://www.apache.org/licenses/
+# ---------------------------------------------------------------------------
+
 ---
-# tasks file for prepare-pushgateway
+
+# - Configure Pushgateway ---------------------------------------------------
+# - Verify user and group
+# - Copy scrape configuration
+# - Enable port 9091 in firewall
+# ---------------------------------------------------------------------------
 
 - name: Ensure group 'prometheus' exists
   group:
@@ -17,7 +35,7 @@
     group: prometheus
   tags: configure-pushgateway
 
-- name: enable port 9091 in firewall rules
+- name: Enable port 9091 in firewall rules
   firewalld:
     port: 9091/tcp
     state: enabled
