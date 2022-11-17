@@ -326,7 +326,7 @@ oci iam region-subscription list
 
 ### File /home/steampipe/config/oci.spc - Steampipe Region Filter
 
-The configuration is provided by Ansible automation and corresponds with file created during OCI CLI setup. You can rename the connection and filter for your regions. Just edit the file _/home/steampipe/config/oci.spc_ - example:
+The configuration is provided by Ansible automation and corresponds with file created during OCI CLI setup. You can rename the connection and filter for your regions. Just edit the file _/home/steampipe/config/oci.spc_ and restart the Steampipe container - example:
 
 ```bash
 connection "oci" {
@@ -337,7 +337,7 @@ connection "oci" {
 }
 ```
 
-Restart Docker container for Steampipe.io as OS user root to re-enable the settings:
+Restart Docker container for Steampipe.io as OS user _root_ to re-enable the settings:
 
 ```bash
 sudo su -

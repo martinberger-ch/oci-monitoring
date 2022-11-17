@@ -54,9 +54,9 @@
 
 - name: Copy OCI BV Python Template eu-zurich-1
   template:
-    dest: /home/steampipe/py/pgsql-example-block-volume-summary.py
+    dest: /home/steampipe/py/psql-example-block-volume-summary.py
     force: true
-    src: postgresql/pgsql-example-block-volume-summary.py.j2
+    src: postgresql/psql-example-block-volume-summary.py.j2
     mode: 0644
     owner: steampipe
     group: steampipe
@@ -64,9 +64,9 @@
 
 - name: Copy OCI CI Python Template eu-zurich-1
   template:
-    dest: /home/steampipe/py/pgsql-example-compute-instance-running.py
+    dest: /home/steampipe/py/psql-example-compute-instance-running.py
     force: true
-    src: postgresql/pgsql-example-compute-instance-running.py.j2
+    src: postgresql/psql-example-compute-instance-running.py.j2
     mode: 0644
     owner: steampipe
     group: steampipe
