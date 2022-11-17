@@ -1,0 +1,73 @@
+# tasks file for config-steampipe
+- name: Install OCI Plugin
+  community.docker.docker_container_exec:
+    container: steampipe
+    command: /bin/bash -c "steampipe plugin install oci"
+  tags: configure-steampipe
+
+- name: Get PG Connect String
+  shell: docker exec --tty steampipe steampipe service status --show-password | grep postgres
+  args:
+    executable: /bin/bash
+  register: steampipe_connect_full
+  tags: configure-steampipe
+
+- name: Setting facts so that they will be persisted in the fact cache
+  set_fact:
+          steampipe_connect_string: "{{ steampipe_connect_full.stdout[22:90] }}"
+  tags: configure-steampipe
+
+- debug: msg="{{steampipe_connect_string}}"
+  tags: configure-steampipe
+
+- name: Register dummy host with variable to use it in next playbook
+  add_host:
+    name: "dummy_host"
+    transfer_var: "{{ steampipe_connect_string }}"
+  tags: configure-steampipe
+
+- name: Remove default file (delete file)
+  ansible.builtin.file:
+    path: /home/steampipe/config/oci.spc
+    state: absent
+  tags: configure-steampipe
+
+- name: Copy OCI Steampipe template
+  template:
+    dest: /home/steampipe/config/oci.spc
+    force: true
+    src: steampipe/etc-oci.spc.j2
+    mode: 0644
+    owner: steampipe
+    group: steampipe
+  tags: configure-steampipe
+
+
+- debug: msg="{{ hostvars['dummy_host']['transfer_var'] }}"
+  tags: configure-steampipe
+
+- name: Set Fact for Python Template processing based on Dummy Host variable
+  set_fact:
+    steampipe_connect_string: "{{ hostvars['dummy_host']['transfer_var'] }}"
+    cacheable: no
+  tags: configure-steampipe
+
+- name: Copy OCI BV Python Template eu-zurich-1
+  template:
+    dest: /home/steampipe/py/pgsql-example-block-volume-summary.py
+    force: true
+    src: postgresql/pgsql-example-block-volume-summary.py.j2
+    mode: 0644
+    owner: steampipe
+    group: steampipe
+  tags: configure-steampipe
+
+- name: Copy OCI CI Python Template eu-zurich-1
+  template:
+    dest: /home/steampipe/py/pgsql-example-compute-instance-running.py
+    force: true
+    src: postgresql/pgsql-example-compute-instance-running.py.j2
+    mode: 0644
+    owner: steampipe
+    group: steampipe
+  tags: configure-steampipe

@@ -1,0 +1,43 @@
+---
+# tasks file for prepare-prometheus
+
+- name: Ensure group 'prometheus' exists
+  group:
+    name: prometheus
+    state: present
+  tags: configure-prometheus
+
+- name: Add the user prometheus with a group of 'prometheus'
+  user:
+    name: prometheus
+    comment: Prometheus User
+    group: prometheus
+  tags: configure-prometheus
+
+- name: create directory if they don't exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: 0775
+  loop:
+    - /etc/prometheus
+    - /home/prometheus/data
+  tags: configure-prometheus
+
+- name: prometheus | prometheus configuration file
+  template:
+    dest: /etc/prometheus/prometheus.yml
+    force: true
+    src: prometheus/etc-prometheus-yml.j2
+    mode: 0644
+    owner: prometheus
+    group: prometheus
+  tags: configure-prometheus
+
+- name: enable port 9090 in firewall rules
+  firewalld:
+    port: 9090/tcp
+    state: enabled
+  tags: configure-prometheus

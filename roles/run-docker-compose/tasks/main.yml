@@ -1,0 +1,25 @@
+---
+# task file for docker compose
+- name: create directory if they don't exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+  loop:
+    - /etc/docker
+  tags: run-docker-compose
+
+- name: Grafana Data Source Configuration
+  template:
+    dest: /etc/docker/docker-compose.yml
+    force: true
+    src: docker-compose/docker-compose.yml.j2
+    mode: 0644
+  tags: run-docker-compose
+
+- name: Run Docker-Compose
+  shell:
+    cmd: "docker-compose -f /etc/docker/docker-compose.yml up -d"
+  tags: run-docker-compose

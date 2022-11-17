@@ -1,5 +1,0 @@
----
-# task file for docker compose
-- name: Run Docker-Compose
-  shell:
-    cmd: "docker-compose -f /etc/docker/docker-compose.yml up -d"

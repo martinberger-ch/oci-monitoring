@@ -1,0 +1,57 @@
+---
+# tasks file for docker
+
+- name: Add Docker repo
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+  tags: configure-docker
+
+- name: Remove RunC Lightweight Container
+  dnf:
+    name:
+      - runc
+    state: absent
+  tags: configure-docker
+  
+- name: Install the latest version of Docker and Co.
+  dnf:
+    name:
+      - containerd.io
+      - docker-ce
+      - docker-ce-cli
+    state: latest
+  tags: configure-docker
+
+- name: Enable service for Docker
+  ansible.builtin.systemd:
+    name: docker
+    enabled: yes
+  tags: configure-docker
+
+- name: Make sure a service unit for Docker is running
+  ansible.builtin.systemd:
+    state: started
+    name: docker
+  tags: configure-docker
+
+- name: Install docker for Python 3 specifically, using the 'pip3' executable
+  pip:
+    name: docker
+    executable: pip3
+  tags: configure-docker
+
+- name: Install Docker-Compose, set permissions and relink
+  shell: |
+    curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    chmod +x /usr/local/bin/docker-compose
+    ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+  ignore_errors: yes
+  tags: configure-docker
+
+- name: Adding user steampipe to group docker  
+  user: name=steampipe
+        group=docker
+        groups=wheel
+        append=yes
+  tags: configure-docker

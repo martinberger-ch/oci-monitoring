@@ -1,0 +1,24 @@
+---
+# tasks file for prepare-pushgateway
+
+- name: Ensure group 'prometheus' exists
+  group:
+    name: prometheus
+    state: present
+  tags: configure-pushgateway
+
+- name: Add Gateway Scrape Config
+  lineinfile:
+    insertafter: EOF
+    path: /etc/prometheus/prometheus.yml
+    line: "{{ lookup('template', 'pushgateway/pushgateway.yml.j2') }}"
+    mode: 0644
+    owner: prometheus
+    group: prometheus
+  tags: configure-pushgateway
+
+- name: enable port 9091 in firewall rules
+  firewalld:
+    port: 9091/tcp
+    state: enabled
+  tags: configure-pushgateway

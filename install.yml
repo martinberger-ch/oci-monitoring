@@ -3,8 +3,11 @@
   hosts: monitoring
   become: yes
   roles:
-    - prepare
-    - docker
-    - docker-compose
-    - config
+    - configure-grafana
+    - configure-prometheus
+    - configure-pushgateway
+    - configure-psql
+    - configure-docker
+    - run-docker-compose
+    - configure-steampipe
 

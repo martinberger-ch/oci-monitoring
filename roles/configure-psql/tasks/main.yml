@@ -1,0 +1,38 @@
+---
+# tasks file for prepare-postgresql
+
+- name: install the latest version of pgsql
+  dnf:
+    name: postgresql
+    state: present
+  tags: configure-psql
+
+- name: install the latest version of pgsql-devel
+  dnf:
+    name: postgresql-devel
+    state: present
+  tags: configure-psql
+
+- name: install the latest version of pgsql-devel
+  dnf:
+    name: gcc
+    state: present
+  tags: configure-psql
+
+- name: install the latest version of python3-devel
+  dnf:
+    name: python3-devel
+    state: present
+  tags: configure-psql
+
+- name: Install psql for Python 3 specifically, using the 'pip3' executable
+  pip:
+    name: psycopg2
+    executable: pip3
+  tags: configure-psql
+
+- name: Install client for Python 3 specifically, using the 'pip3' executable
+  pip:
+    name: prometheus_client
+    executable: pip3
+  tags: configure-psql
