@@ -10,22 +10,22 @@ try:
 
     try:
         cur = con.cursor()
-        cur.execute('select count(*) from oci_core_instance where region=\'eu-zurich-1\' and lifecycle_state=\'RUNNING\';')
+        cur.execute('select count(*) from oci_core_instance where lifecycle_state=\'RUNNING\';')
         print('Query ran')
     except:
         print('Query failed')
         raise
     else:
-        ci_zurich = cur.fetchone()[0]
-        print(ci_zurich)
+        ci_summary = cur.fetchone()[0]
+        print(ci_summary)
 
-        if ci_zurich is None:
-          ci_zurich = 0
+        if ci_summary is None:
+          ci_summary = 0
 
         registry = CollectorRegistry()
 
-        g = Gauge('oci_compute_running_summary_zrh', 'OCI Compute Running Summary ZRH', registry=registry)
-        g.set(int(ci_zurich))
+        g = Gauge('oci_compute_running_summary', 'OCI Compute Running Summary', registry=registry)
+        g.set(int(ci_summary))
         push_to_gateway('{{ ansible_default_ipv4.address }}:9091', job='oci_compute', registry=registry)
 
     finally:
