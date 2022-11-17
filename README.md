@@ -1,6 +1,6 @@
 # Installation Guide for OCI Monitoring with Steampipe.io
 
-This guide shows you how to install and setup a nice monitoring solution based on Steampipe.io, Docker and Co. 
+This guide shows you how to install and setup a nice monitoring solution based on Steampipe.io, Docker and Co.
 
 Steampipe - select * from cloud - is a powerful tool where you can interact to Cloud providers like Oracle Cloud Infrastructure, Azure, AWS and many more with SQL statements. Steampipe is an open source project and uses plugins to communicate with the providers. In the background, there is a PostgreSQL server running with the Steampipe Postgres Foreign Data Wrapper. The server provides an interface where you can run query against with other languages like Python. In this guide, we install the infrastructure as docker containers, configure the OCI access and gather information by Python scripts to monitor the result in a Grafana dashboard.
 
@@ -406,12 +406,12 @@ Steampipe is now ready to gather data from the Oracle Cloud Infrastructure Accou
 
 In subdirectory of new add OS user steampipe _/home/steampipe/py_ there are two basic examples with pre-configured PostgreSQL connect string. There you can see how to get the data from Steampipe PostgreSQL service in Python3 and push them to the Prometheus Pushgateway. Feel free to adapt the queries and files. You can verify the pushed data in browser by URL "http://your-public-ip:9091". If the port is not reachable, check your OCI Security List Ingress settings.
 
-| Script                                    | Purpose                                              |   |   |   |
-|-------------------------------------------|------------------------------------------------------|---|---|---|
-| pgsql-example-block-volume-summary.py     | Summary of Block Volume in OCI Region Zurich         |   |   |   |
-| pgsql-example-compute-instance-running.py | Summary of available Instances in OCI Region Zurich  |   |   |   |
+| Script                                    | Purpose                                              |
+|-------------------------------------------|------------------------------------------------------|
+| pgsql-example-block-volume-summary.py     | Summary of Block Volume in OCI Region Zurich         |
+| pgsql-example-compute-instance-running.py | Summary of available Instances in OCI Region Zurich  |
 
-Run the script as OS user _steampipe_, example.
+Run the script as OS user _steampipe_, example:
 
 ```bash
 $ python3 pgsql-query-ci-running-zurich.py
