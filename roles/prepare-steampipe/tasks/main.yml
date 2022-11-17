@@ -1,0 +1,33 @@
+# tasks file for steampipe
+
+- name: Ensure group 'steampipe' exists
+  group:
+    name: steampipe
+    state: present
+  tags: prepare-steampipe
+
+- name: Add the user steampipe with a group of 'steampipe'
+  user:
+    name: steampipe
+    comment: Steampipe User
+    group: steampipe
+    uid: 9193
+  tags: prepare-steampipe
+
+- name: create directory if they don't exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0775
+    owner: steampipe
+    group: steampipe
+  loop:
+    - /home/steampipe/sp
+    - /home/steampipe/config
+    - /home/steampipe/sql
+    - /home/steampipe/py
+    - /home/steampipe/tmp
+    - /home/steampipe/sp/config
+    - /home/steampipe/.oci
+    - /home/steampipe/.steampipe
+  tags: prepare-steampipe

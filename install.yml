@@ -8,6 +8,7 @@
     - configure-pushgateway
     - configure-psql
     - configure-docker
+    - prepare-steampipe
     - run-docker-compose
     - configure-steampipe
 
