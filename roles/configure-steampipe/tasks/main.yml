@@ -95,3 +95,4 @@
   user: name=steampipe
         groups=docker
         append=yes
+  tags: configure-steampipe
