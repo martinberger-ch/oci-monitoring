@@ -1,7 +1,8 @@
 # Installation Guide for OCI Monitoring with Steampipe.io
 
-This guide shows you how to install and setup a nice monitoring solution based on Steampipe.io, Docker and Co. Steampipe.io
-is a framework, where you can query Oracle Cloud Infrastructure resources by SQL language.
+This guide shows you how to install and setup a nice monitoring solution based on Steampipe.io, Docker and Co. 
+
+Steampipe - select * from cloud - is a powerful tool where you can interact to Cloud providers like Oracle Cloud Infrastructure, Azure, AWS and many more with SQL statements. Steampipe is an open source project and uses plugins to communicate with the providers. In the background, there is a PostgreSQL server running with the Steampipe Postgres Foreign Data Wrapper. The server provides an interface where you can run query against with other languages like Python. In this guide, we install the infrastructure as docker containers, configure the OCI access and gather information by Python scripts to monitor the result in a Grafana dashboard.
 
 This guide is tested in OL 8 running on Oracle Cloud Infrastructure.
 
@@ -11,9 +12,9 @@ This guide is tested in OL 8 running on Oracle Cloud Infrastructure.
 
 1. Execute Python Script
 2. Steampipe gathers the information from Oracle Cloud Infrastructure
-3. The return value is pushed to Prometheus Push Gateway
-4. Prometheus scrapes the metric from the gateway
-5. Grafana reads the metric from Prometheus
+3. The return value is pushed to Prometheus Pushgateway
+4. Prometheus scrapes the metric from the Pushgateway
+5. Grafana reads the metric from Prometheus data source
 
 ## Installed components by Ansible roles
 
@@ -21,37 +22,35 @@ This guide is tested in OL 8 running on Oracle Cloud Infrastructure.
 - Steampipe
 - Grafana
 - Prometheus
-- Push Gateway
+- Pushgateway
 - PostgreSQL
 
 The Docker containers are started by docker-compose.
 
-## New OS User added
+## New OS User Steampipe added
 
-During the Ansible playbook execution, a new OS user called_steampipe_ is created. This user is used for the OCI CLI and Steampipe.io configuration.
+During the Ansible playbook execution, a new OS user called _steampipe_ is created automatically. This user is used for the OCI CLI and Steampipe.io configuration.
 
 ## Links
 
 - [Steampipe](https://steampipe.io/)
+- [Steampipe OCI Plugin](https://hub.steampipe.io/plugins/turbot/oci)
 - [Prometheus](https://prometheus.io/)
 - [Grafana](https://grafana.com/)
 - [OCI CLI](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/cliconcepts.htm)
 
 ## Compute Node Setup
 
-- VCN with internet access by Internet Gateway or NAT Gateway
-- OL 8 Compute Instance up and running
-- SSH keys user _opc_ related
-- OS access as user _opc_ and SSH private key available for Ansible playbook execution
-- /etc/hosts configured
-- Ansible and Git configured
-- SELinux set to PERMISSIVE in /etc/selinux/config
+- OL 8 Compute Instance up and running with Internet access
+- SSH keys for user _opc_
+- /etc/hosts configured (done by OCI)
+- Ansible and Git packages installed
 
 ![OCI Compute Image](images/oci_compute_instance.jpg)
 
 ## Oracle Cloud Infrastructure IAM Requirements
 
-- An OCI User and Group with _inspect all-resources_ and _request.operation='GetConfiguration'_ privileges - see section below.
+- An OCI User and Group with _inspect all-resources_ and _request.operation='GetConfiguration'_ privileges is required to run steampipe.io - see section below.
 
 ## Oracle Cloud Infrastructure - Create the user for OCI API access - based on OCI CLI
 
@@ -111,26 +110,21 @@ Menu -> Governance & Administration -> Tenancy Details.
 
 ![OCI Policy](images/oci_tenancy_ocid.jpg)
 
-## OS Packages
+## OS Packages - root
 
-Login as OS user _opc_ and change to _root_.
+### Update the OS and install YUM Packages for Ansible and Git
 
 ```bash
 sudo su -
-```
-
-### Update the OS and install YUM Packages for Ansible and Git as _root_
-
-```bash
 dnf upgrade
 dnf install -y ansible git
 ```
 
-## Monitoring Installation and Configuration
+## GitHub Clone and Ansible Playbook Execution - opc
 
 ### Clone the GitHub repository to a local folder
 
-As user _opc_, clone the repository.
+As user _opc_, clone the repository and proceed the further steps.
 
 ```bash
 mkdir git
@@ -162,23 +156,23 @@ curl --silent http://169.254.169.254/opc/v1/vnics/ | grep private | awk -F\" '{p
 
 ### Run _ansible-galaxy collection install -r roles/requirements.yml_
 
-Installs the community docker module for Ansible. User is _opc_.
+Installs the community docker module for Ansible.
 
 ```bash
-# ansible-galaxy collection install -r roles/requirements.yml
+ansible-galaxy collection install -r roles/requirements.yml
 ```
 
 ### Run _ansible-playbook install.yml_
 
-Creates users and directories, installs required software and configures Docker containers. User is _opc_.
+Creates users and directories, installs required software and configures Docker containers. User is still _opc_.
 
 ```bash
-# ansible-playbook install.yml
+ansible-playbook install.yml
 ```
 
 ## Verification
 
-Verify is all Docker containers are running:
+Verify all Docker containers are running:
 
 ```bash
 $ sudo docker ps
@@ -191,8 +185,8 @@ c6ecc72065c9   prom/prometheus    "/bin/prometheus --c…"   About an hour ago  
 
 ### Network Security
 
-The Ansible playbooks opens additionally these ports in the VM for (troubleshooting) access. Take care: you need
-to open these ports in the OCI VCN Security List too to get web access.
+The Ansible playbooks opens these ports inside the VM for external access. Take care: you need
+to open these ports in the OCI VCN Security List too to get web access too.
 
 - 3000 - Grafana
 - 9090 - Prometheus
@@ -205,26 +199,22 @@ Verify if Grafana is reachable by your workstation - IP: <http://your-custom-ima
 
 ![Grafana Login](images/grafana_login.jpg)
 
-## OCI CLI
+## OCI CLI - steampipe
 
-As OS user _steampipe_, install the OCI CLI. Answer all questions with _enter_.
+As OS user _steampipe_, install the OCI CLI and configure it.
 
 ### Install OCI CLI
 
-Install and configure the OCI CLI as OS user _opc_. Press Enter when asked for directory, scripts, modify profile etc.
+Install and configure the OCI CLI. Press _Enter_ when asked for directory, scripts, modify profile etc. Do not change the settings.
 
 ```bash
 sudo su - steampipe
 bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh)"
 ```
 
-```bash
-oci --latest-version
-```
-
 ### Configure OCI CLI
 
-Execute the setup with your user and tenant OCID, create a new API Signing Key Pair. This key is later used in OCI web interface.
+Execute the setup with your user and tenant OCID, create a new API Signing Key Pair. This key is later used in OCI web interface. Do not change other settings and let the default values.
 
 Use these parameters:
 
@@ -233,12 +223,11 @@ Use these parameters:
 - Your preferred region - e.g.  _eu-zurich-1_.
 - Config location: /home/steampipe/.oci/config
 
-If there is already an existing profile, overwrite the file. A new config file and profile is created. In this case, a password for the SSH key is used.
-Let the setup tool write it into the OCI config file.
+Important: Press Y=yes when asked for a new API Signing RSA key pair.
 
 ```bash
-$ oci setup config
-    This command provides a walkthrough of creating a valid CLI config file. Press Y=yes when asked for a new API Signing RSA key pair.
+oci setup config
+    This command provides a walkthrough of creating a valid CLI config file.
 
     The following links explain where to find the information required by this
     script:
@@ -256,9 +245,9 @@ $ oci setup config
         https://docs.cloud.oracle.com/Content/API/Concepts/sdkconfig.htm
 
 
-Enter a location for your config [/home/steampipe/.oci/config]:
-Enter a user OCID: ocid1.user.oc1..aaaaaaaawg5x5p5p57e3c2vnnmwhqn7bpjnumuwiuseaojw55u6ccl5aea6a
-Enter a tenancy OCID: ocid1.tenancy.oc1..aaaaaaaaagcamhpk2tn6josi7qqt6fzlnrvytfa3tv3cszkmkfzfsczlnnsa
+Enter a location for your config [/home/steampipe/.oci/config]: <ENTER>
+Enter a user OCID: <USER OCID>
+Enter a tenancy OCID: <TENANCY OCID>
 Enter a region by index or name(e.g.
 1: af-johannesburg-1, 2: ap-chiyoda-1, 3: ap-chuncheon-1, 4: ap-dcc-canberra-1, 5: ap-hyderabad-1,
 6: ap-ibaraki-1, 7: ap-melbourne-1, 8: ap-mumbai-1, 9: ap-osaka-1, 10: ap-seoul-1,
@@ -268,16 +257,14 @@ Enter a region by index or name(e.g.
 26: me-abudhabi-1, 27: me-dcc-muscat-1, 28: me-dubai-1, 29: me-jeddah-1, 30: mx-queretaro-1,
 31: sa-santiago-1, 32: sa-saopaulo-1, 33: sa-vinhedo-1, 34: uk-cardiff-1, 35: uk-gov-cardiff-1,
 36: uk-gov-london-1, 37: uk-london-1, 38: us-ashburn-1, 39: us-gov-ashburn-1, 40: us-gov-chicago-1,
-41: us-gov-phoenix-1, 42: us-langley-1, 43: us-luke-1, 44: us-phoenix-1, 45: us-sanjose-1): 24
+41: us-gov-phoenix-1, 42: us-langley-1, 43: us-luke-1, 44: us-phoenix-1, 45: us-sanjose-1): <YOUR REGION NUMBER>
 Do you want to generate a new API Signing RSA key pair? (If you decline you will be asked to supply the path to an existing key.) [Y/n]: Y
-Enter a directory for your keys to be created [/home/steampipe/.oci]:
-Enter a name for your key [oci_api_key]:
+Enter a directory for your keys to be created [/home/steampipe/.oci]: <ENTER>
+Enter a name for your key [oci_api_key]: <ENTER>
 Public key written to: /home/steampipe/.oci/oci_api_key_public.pem
-Enter a passphrase for your private key (empty for no passphrase):
-Repeat for confirmation:
+Enter a passphrase for your private key (empty for no passphrase): <ENTER>
 Private key written to: /home/steampipe/.oci/oci_api_key.pem
-Fingerprint: b8:1c:03:c9:80:e7:b0:24:38:80:ce:2e:d9:07:6b:48
-Do you want to write your passphrase to the config file? (If not, you will need to enter it when prompted each time you run an oci command) [y/N]: y
+Fingerprint: 72:ef:ef:ad:32:17:23:ac:4d:3c:04:08:ce:e5:ab:aa
 Config written to /home/steampipe/.oci/config
 
 
@@ -287,9 +274,10 @@ Config written to /home/steampipe/.oci/config
 
         https://docs.cloud.oracle.com/Content/API/Concepts/apisigningkey.htm#How2
 
+
 ```
 
-### Add API Key
+### Upload API Key
 
 Copy the content of the public key file created by OCI CLI and add it to the user's API
 configuration.
@@ -300,7 +288,7 @@ cat /home/steampipe/.oci/oci_api_key_public.pem
 
 ![API Key](images/oci_api_key.jpg)
 
-Verify the functionality of the OCI CLI - get Oracle Cloud Infrastructure list of subscribed regions:
+Verify the functionality of the OCI CLI - get a list of subscribed OCIregions:
 
 ```bash
 oci iam region-subscription list
@@ -318,9 +306,9 @@ oci iam region-subscription list
 }
 ```
 
-### File /home/steampipe/config/oci.spc - Steampipe Region Filter
+### File /home/steampipe/config/oci.spc - Steampipe Region Filter - steampipe
 
-The configuration is provided by Ansible automation and corresponds with file created during OCI CLI setup. You can rename the connection and filter for your regions. Just edit the file _/home/steampipe/config/oci.spc_ and restart the Steampipe container - example:
+The configuration is provided by Ansible and corresponds with the files created during OCI CLI setup. You can rename the connection and filter for your regions. Just edit the file _/home/steampipe/config/oci.spc_ and restart the Steampipe container - example:
 
 ```bash
 connection "oci" {
@@ -339,7 +327,7 @@ sudo su -
 # docker start steampipe
 ```
 
-### Steampipe Verification
+### Steampipe Verification - steampipe
 
 Verify if Steampipe.io is working properly and the connection works as expected. Execute as OS user _root_:
 
@@ -489,6 +477,15 @@ To verify if Steampipe is running properly:
 # docker logs steampipe
 ```
 
+User steampipe is not able to run docker commands:
+
+```bash
+Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/steampipe/json": dial unix /var/run/docker.sock: connect: permission denied
+
+```
+
+Verify if the docker.sock file has permissions 0666 set.
+
 ### Steampipe Access Logs
 
 The foreign data wrapper logs are stored locally on the Docker volume:
@@ -521,15 +518,4 @@ Restarting Steampipe as OS user root:
 # docker start steampipe
 ```
 
-### Grafana Panel Installation
-
-```bash
-TASK [config : include_tasks] ******************************************************************************************************************************************************************
-fatal: [192.168.201.57]: FAILED! => {"reason": "couldn't resolve module/action 'community.docker.docker_container_exec'. This often indicates a misspelling, missing collection, or incorrect module path.\n\nThe error appears to be in '/root/git/oci-monitoring/roles/config/tasks/config-grafana.yml': line 4, column 3, but may\nbe elsewhere in the file depending on the exact syntax problem.\n\nThe offending line appears to be:\n\n\n- name: Install Grafana time and date panel\n  ^ here\n"}
-```
-
-Restart installation.
-
-## Notes
-
-oci monitoring metric-data summarize-metrics-data -c ocid1.tenancy.xxxxxxxxxx --namespace xxxxxxxxxxx --query-text 'BytesToIgw[1440m].sum()'
+Verify OCI CLI functionality first.

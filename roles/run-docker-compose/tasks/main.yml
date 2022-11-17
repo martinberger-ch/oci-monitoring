@@ -40,3 +40,10 @@
   shell:
     cmd: "docker-compose -f /etc/docker/docker-compose.yml up -d"
   tags: run-docker-compose
+
+
+- name: Change file permission for docker.sock
+  file:
+    path: /var/run/docker.sock
+    mode: '0666'
+  tags: run-docker-compose
