@@ -90,3 +90,8 @@
     owner: steampipe
     group: steampipe
   tags: configure-steampipe
+
+- name: Adding user steampipe to docker group
+  user: name=steampipe
+        groups=docker
+        append=yes

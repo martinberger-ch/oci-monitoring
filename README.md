@@ -122,7 +122,7 @@ dnf install -y ansible git
 
 ## GitHub Clone and Ansible Playbook Execution - opc
 
-### Clone the GitHub repository to a local folder
+### Clone the GitHub repository to a local folder and change to subdirectory
 
 As user _opc_, clone the repository and proceed the further steps.
 
@@ -130,31 +130,11 @@ As user _opc_, clone the repository and proceed the further steps.
 mkdir git
 cd git
 git clone https://github.com/martinberger-ch/oci-monitoring.git
-```
 
-### Change to subdirectory oci-monitoring
-
-```bash
 cd oci-monitoring
 ```
 
-### Set private IP for installation process and configure hosts file
-
-Edit hosts file in oci-monitoring subdirectory and change private IP. We use a local connection. Get OCI
-Compute Instance private IP address from instance metadata:
-
-```bash
-curl --silent http://169.254.169.254/opc/v1/vnics/ | grep private | awk -F\" '{print $4}'
-10.0.0.47
-```
-
-```bash
-# Set host private IP - example 10.0.0.228
-[monitoring]
-10.0.0.47 ansible_user=opc ansible_connection=local
-```
-
-### Run _ansible-galaxy collection install -r roles/requirements.yml_
+### Install Docker module from the Ansible Galaxy Collection
 
 Installs the community docker module for Ansible.
 
@@ -162,9 +142,9 @@ Installs the community docker module for Ansible.
 ansible-galaxy collection install -r roles/requirements.yml
 ```
 
-### Run _ansible-playbook install.yml_
+### Run the Ansible Playbook
 
-Creates users and directories, installs required software and configures Docker containers. User is still _opc_.
+Creates users and directories, installs required software and configures Docker containers. User is _opc_.
 
 ```bash
 ansible-playbook install.yml
