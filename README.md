@@ -47,8 +47,6 @@ During the Ansible playbook execution, a new OS user called_steampipe_ is create
 - Ansible and Git configured
 - SELinux set to PERMISSIVE in /etc/selinux/config
 
-  
-
 ![OCI Compute Image](images/oci_compute_instance.jpg)
 
 ## Oracle Cloud Infrastructure IAM Requirements
@@ -146,11 +144,9 @@ git clone https://github.com/martinberger-ch/oci-monitoring.git
 cd oci-monitoring
 ```
 
-
-
 ### Set private IP for installation process and configure hosts file
 
-Edit hosts file in oci-monitoring subdirectory and change private IP. We use a local connection. Get OCI 
+Edit hosts file in oci-monitoring subdirectory and change private IP. We use a local connection. Get OCI
 Compute Instance private IP address from instance metadata:
 
 ```bash
@@ -208,8 +204,6 @@ to open these ports in the OCI VCN Security List too to get web access.
 Verify if Grafana is reachable by your workstation - IP: <http://your-custom-image-ip:3000>
 
 ![Grafana Login](images/grafana_login.jpg)
-
-
 
 ## OCI CLI
 
