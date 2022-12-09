@@ -2,7 +2,7 @@ import psycopg2
 from prometheus_client import CollectorRegistry, Gauge, push_to_gateway
 from prometheus_client import Summary
 
-uri = f'postgres://steampipe:4dc4_46f9_9b9e@localhost:9193/steampipe'
+uri = f'{{ steampipe_connect_string }}'
 
 try:
     con = psycopg2.connect(uri)

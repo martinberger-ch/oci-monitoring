@@ -194,7 +194,7 @@ bash -c "$(curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scrip
 
 ### Configure OCI CLI
 
-Execute the setup with your user and tenant OCID, create a new API Signing Key Pair. This key is later used in OCI web interface. Do not change other settings and let the default values.
+Execute the setup with your user and tenant OCID, create a new API Signing Key Pair without password. This key is later used in OCI web interface. Do not change other settings and let the default values.
 
 Use these parameters:
 
@@ -414,7 +414,8 @@ In subdirectory of new add OS user steampipe _/home/steampipe/py_ there are two 
 Run the script as OS user _steampipe_, example:
 
 ```bash
-$ python3 pgsql-query-ci-running-zurich.py
+$ cd /home/steampipe/py 
+$ python3 psql-example-compute-instance-running.py
 Connected to DB.
 Query ran
 3
