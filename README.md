@@ -98,7 +98,7 @@ According Steampipe.io: <https://hub.steampipe.io/plugins/turbot/oci>
 oci iam policy create \
 --compartment-id <your root compartment OCID> \
 --name oci_policy_readonly \
---description "OCI Policy with inspect all-resources." \
+--description "OCI Policy with read all-resources." \
 --statements '[ "allow group oci_group_readonly to read all-resources on tenancy","allow group oci_group_readonly to manage all-resources in tenancy where request.operation='GetConfiguration'" ]' \
 ```
 
