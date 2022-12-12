@@ -10,9 +10,9 @@ This guide is tested in OL 8 running on Oracle Cloud Infrastructure.
 
 ![Architecture](images/architecture.png)
 
-1. Execute Python Script
+1. Execute Python script against steampipe.io by SQL syntax
 2. Steampipe gathers the information from Oracle Cloud Infrastructure
-3. The return value is pushed to Prometheus Pushgateway
+3. The return value is pushed by the Python script to Prometheus Pushgateway
 4. Prometheus scrapes the metric from the Pushgateway
 5. Grafana reads the metric from Prometheus data source
 
@@ -420,6 +420,52 @@ Connected to DB.
 Query ran
 3
 Connection closed.
+```
+
+Behind the Python script - Variables are replaced during the Ansible deployment.
+
+```bash
+import psycopg2
+from prometheus_client import CollectorRegistry, Gauge, push_to_gateway
+from prometheus_client import Summary
+
+# set postgresql connect string
+uri = f'{{ steampipe_connect_string }}'
+
+try:
+    # verify connection
+    con = psycopg2.connect(uri)
+    print(f'Connected to DB.')
+
+    try:
+        # execute sql query
+        cur = con.cursor()
+        cur.execute('SELECT sum(size_in_gbs) from oci_core_volume where lifecycle_state=\'AVAILABLE\';')
+        print('Query ran')
+    except:
+        print('Query failed')
+        raise
+    else:
+        # set variable with query return value
+        bv_summary = cur.fetchone()[0]
+        print(bv_summary)
+
+        if bv_summary is None:
+          bv_summary = 0
+
+        # prepare pushgateway
+        registry = CollectorRegistry()
+        g = Gauge('oci_compute_blockvolumes_summary', 'OCI Compute Block Volumes Summary', registry=registry)
+        g.set(int(bv_summary))
+
+        # push data to pushgateway
+        push_to_gateway('{{ ansible_default_ipv4.address }}:9091', job='oci_blockvolume', registry=registry)
+
+    finally:
+        con.close()
+        print(f'Connection closed.')
+except Exception as e:
+    print('Something went wrong:', e)
 ```
 
 The result is pushed as a metric, this can be verified on the Pushgateway homepage.

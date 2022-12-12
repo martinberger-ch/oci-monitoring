@@ -2,13 +2,16 @@ import psycopg2
 from prometheus_client import CollectorRegistry, Gauge, push_to_gateway
 from prometheus_client import Summary
 
+# set postgresql connect string
 uri = f'{{ steampipe_connect_string }}'
 
 try:
+    # verify connection
     con = psycopg2.connect(uri)
     print(f'Connected to DB.')
 
     try:
+        # execute sql query
         cur = con.cursor()
         cur.execute('SELECT sum(size_in_gbs) from oci_core_volume where lifecycle_state=\'AVAILABLE\';')
         print('Query ran')
@@ -16,16 +19,19 @@ try:
         print('Query failed')
         raise
     else:
+        # set variable with query return value
         bv_summary = cur.fetchone()[0]
         print(bv_summary)
 
         if bv_summary is None:
           bv_summary = 0
 
+        # prepare pushgateway
         registry = CollectorRegistry()
-
         g = Gauge('oci_compute_blockvolumes_summary', 'OCI Compute Block Volumes Summary', registry=registry)
         g.set(int(bv_summary))
+
+        # push data to pushgateway
         push_to_gateway('{{ ansible_default_ipv4.address }}:9091', job='oci_blockvolume', registry=registry)
 
     finally:
