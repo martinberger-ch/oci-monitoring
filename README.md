@@ -50,7 +50,7 @@ During the Ansible playbook execution, a new OS user called _steampipe_ is creat
 
 ## Oracle Cloud Infrastructure IAM Requirements
 
-- An OCI User and Group with _inspect all-resources_ and _request.operation='GetConfiguration'_ privileges is required to run steampipe.io - see section below.
+- An OCI User and Group with _read all-resources_ and _request.operation='GetConfiguration'_ privileges is required to run steampipe.io - see section below.
 
 ## Oracle Cloud Infrastructure - Create the user for OCI API access - based on OCI CLI
 
@@ -67,7 +67,7 @@ User, group and policy can be created in web interface too.
 ![OCI Group](images/oci_group_readonly.jpg)
 
 ```bash
-oci iam group create --name oci_group_readonly --description "OCI Group with inspect all-resources privileges."
+oci iam group create --name oci_group_readonly --description "OCI Group with read all-resources privileges."
 ```
 
 ### Create IAM User
@@ -75,7 +75,7 @@ oci iam group create --name oci_group_readonly --description "OCI Group with ins
 ![OCI User](images/oci_user_readonly.jpg)
 
 ```bash
-oci iam user create --name oci_user_readonly --description "OCI User with inspect all-resources." 
+oci iam user create --name oci_user_readonly --description "OCI User with read all-resources." 
 ```
 
 ### Add User to Group
@@ -99,7 +99,7 @@ oci iam policy create \
 --compartment-id <your root compartment OCID> \
 --name oci_policy_readonly \
 --description "OCI Policy with inspect all-resources." \
---statements '[ "allow group oci_group_readonly to inspect all-resources on tenancy","allow group oci_group_readonly to manage all-resources in tenancy where request.operation='GetConfiguration'" ]' \
+--statements '[ "allow group oci_group_readonly to read all-resources on tenancy","allow group oci_group_readonly to manage all-resources in tenancy where request.operation='GetConfiguration'" ]' \
 ```
 
 ### Gather Tenancy OCID Information
