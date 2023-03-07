@@ -268,7 +268,7 @@ cat /home/steampipe/.oci/oci_api_key_public.pem
 
 ![API Key](images/oci_api_key.jpg)
 
-Verify the functionality of the OCI CLI - get a list of subscribed OCIregions:
+Verify the functionality of the OCI CLI - get a list of subscribed OCI regions:
 
 ```bash
 oci iam region-subscription list
@@ -299,7 +299,7 @@ connection "oci" {
 }
 ```
 
-Restart Docker container for Steampipe.io as OS user _root_ to re-enable the settings:
+How to restart the Docker container for Steampipe.io as OS user _root_:
 
 ```bash
 sudo su -
@@ -309,7 +309,7 @@ sudo su -
 
 ### Steampipe Verification - steampipe
 
-Verify if Steampipe.io is working properly and the connection works as expected. Execute as OS user _root_:
+Verify if Steampipe.io is working properly and the OCI plugin is is installed as expected. Execute as OS user _root_:
 
 ```bash
 # docker exec -it steampipe steampipe plugin list
@@ -422,7 +422,7 @@ Query ran
 Connection closed.
 ```
 
-Behind the Python script - Variables are replaced during the Ansible deployment.
+Behind the Python script - variables like _steamipe_connect_string are replaced during the Ansible deployment.
 
 ```bash
 import psycopg2
